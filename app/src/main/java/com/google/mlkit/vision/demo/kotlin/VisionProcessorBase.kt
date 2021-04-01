@@ -264,7 +264,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
           if (shouldShowFps) framesPerSecond else null
         )
       )
-      this@VisionProcessorBase.onSuccess(originalCameraImage, results, graphicOverlay)
+      this@VisionProcessorBase.onSuccess(image, results, graphicOverlay)
       graphicOverlay.postInvalidate()
     }
       .addOnFailureListener(executor) { e: Exception ->
@@ -303,7 +303,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
   protected abstract fun detectInImage(image: InputImage): Task<T>
 
-  protected abstract fun onSuccess(originalCameraImage: Bitmap?, results: T, graphicOverlay: GraphicOverlay)
+  protected abstract fun onSuccess(image: InputImage, results: T, graphicOverlay: GraphicOverlay)
 
   protected abstract fun onFailure(e: Exception)
 }

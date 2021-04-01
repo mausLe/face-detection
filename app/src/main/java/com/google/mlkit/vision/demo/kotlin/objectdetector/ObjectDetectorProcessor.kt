@@ -52,7 +52,7 @@ class ObjectDetectorProcessor(context: Context, options: ObjectDetectorOptionsBa
     return detector.process(image)
   }
 
-  override fun onSuccess(currentBitmap: Bitmap?, results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
+  override fun onSuccess(image: InputImage, results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
     for (result in results) {
       graphicOverlay.add(ObjectGraphic(graphicOverlay, result))
     }
