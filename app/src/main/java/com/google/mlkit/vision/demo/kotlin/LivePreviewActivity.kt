@@ -19,6 +19,7 @@ package com.google.mlkit.vision.demo.kotlin
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Image
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
@@ -33,6 +34,7 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
@@ -57,6 +59,8 @@ class LivePreviewActivity :
   OnItemSelectedListener,
   CompoundButton.OnCheckedChangeListener {
 
+  //val detectedImage: ImageView = findViewById<ImageView>(R.id.detected_face)
+
   private var cameraSource: CameraSource? = null
   private var preview: CameraSourcePreview? = null
   private var graphicOverlay: GraphicOverlay? = null
@@ -76,6 +80,14 @@ class LivePreviewActivity :
     if (graphicOverlay == null) {
       Log.d(TAG, "graphicOverlay is null")
     }
+
+    // add Detected Image
+
+
+    val detectedImage = findViewById<ImageView>(R.id.detected_face)
+    Glide.with(this)
+      .load(R.drawable.shiba_inu)
+      .into(detectedImage)
 
     val spinner = findViewById<Spinner>(R.id.spinner)
     val options: MutableList<String> = ArrayList()

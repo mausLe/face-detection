@@ -59,8 +59,11 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
   override fun onSuccess(image: InputImage, results: List<Face>, graphicOverlay: GraphicOverlay) {
     // currentBitmap is our originalCameraImage
-    Log.v (MANUAL_TESTING_LOG, "Bitmap: " + image.toString())
+    Log.v (MANUAL_TESTING_LOG, "\n\nImage: " + image.toString())
+    Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
+
     for (face in results) {
+      Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
 
       graphicOverlay.add(FaceGraphic(graphicOverlay, face))
       logExtrasForTesting(face)
