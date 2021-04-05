@@ -51,6 +51,8 @@ import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import java.io.IOException
 import java.util.ArrayList
 
+var detectedImage: ImageView? = null
+
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
 class LivePreviewActivity :
@@ -83,11 +85,13 @@ class LivePreviewActivity :
 
     // add Detected Image
 
-
-    val detectedImage = findViewById<ImageView>(R.id.detected_face)
+    //val detectedImage = findViewById<ImageView>(R.id.detected_face)
+    detectedImage = findViewById<ImageView>(R.id.detected_face)
+    /*
     Glide.with(this)
       .load(R.drawable.shiba_inu)
       .into(detectedImage)
+    */
 
     val spinner = findViewById<Spinner>(R.id.spinner)
     val options: MutableList<String> = ArrayList()

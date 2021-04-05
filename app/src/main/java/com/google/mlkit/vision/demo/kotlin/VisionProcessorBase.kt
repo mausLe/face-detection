@@ -88,6 +88,8 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
   @GuardedBy("this")
   private var processingMetaData: FrameMetadata? = null
 
+  lateinit var bytebuffer2Bitmap : Bitmap
+
   init {
     fpsTimer.scheduleAtFixedRate(
       object : TimerTask() {
@@ -159,6 +161,24 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
         frameMetadata.rotation,
         InputImage.IMAGE_FORMAT_NV21
       )
+     */
+
+    // Convert ByteBuffer to Bitmap
+    // https://github.com/tensorflow/tensorflow/issues/34992
+    /*
+    data.rewind()
+    bytebuffer2Bitmap = Bitmap.createBitmap(frameMetadata.width, frameMetadata.height, Bitmap.Config.ARGB_8888)
+    val pixels = IntArray(frameMetadata.width * frameMetadata.height) // Set your expected data's height and width
+    for (i in 0 until frameMetadata.width * frameMetadata.height) {
+      val a = 0xFF
+      val r = data.float * 255.0f
+      val g = data.float * 255.0f
+      val b = data.float * 255.0f
+      pixels[i] = a shl 24 or (r.toInt() shl 16) or (g.toInt() shl 8) or b.toInt()
+    }
+    bytebuffer2Bitmap.setPixels(pixels, 0, frameMetadata.width, 0, 0, frameMetadata.width, frameMetadata.height)
+    Log.v ("\n\nTEST", "DATA: " + bytebuffer2Bitmap.toString())
+
      */
 
 
@@ -264,7 +284,11 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
           if (shouldShowFps) framesPerSecond else null
         )
       )
-      this@VisionProcessorBase.onSuccess(image, results, graphicOverlay)
+      // image is InputImage
+      // this@VisionProcessorBase.onSuccess(image, results, graphicOverlay)
+
+      // originalCameraImage is Bitmap
+      this@VisionProcessorBase.onSuccess(results, graphicOverlay)
       graphicOverlay.postInvalidate()
     }
       .addOnFailureListener(executor) { e: Exception ->
@@ -303,7 +327,8 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
   protected abstract fun detectInImage(image: InputImage): Task<T>
 
-  protected abstract fun onSuccess(image: InputImage, results: T, graphicOverlay: GraphicOverlay)
+  // protected abstract fun onSuccess(originalCameraImage: Bitmap?, results: T, graphicOverlay: GraphicOverlay)
+  protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
 
   protected abstract fun onFailure(e: Exception)
 }

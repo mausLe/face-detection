@@ -680,6 +680,8 @@ public class CameraSource {
         // frame.
 
         try {
+          // Log.v ("\n\nCameraSource.java", "\n\nData: " + data.toString());
+
           synchronized (processorLock) {
             frameProcessor.processByteBuffer(
                 data,

@@ -18,11 +18,14 @@ package com.google.mlkit.vision.demo.kotlin.facedetector
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.util.Log
+import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
+import com.google.mlkit.vision.demo.kotlin.detectedImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
@@ -30,10 +33,12 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.face.FaceLandmark
 import java.util.Locale
 
+
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
   VisionProcessorBase<List<Face>>(context) {
 
+  lateinit var imageBitmap: Bitmap
   private val detector: FaceDetector
 
   init {
@@ -54,24 +59,79 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   }
 
   override fun detectInImage(image: InputImage): Task<List<Face>> {
+
+    // imageBitmap = image.()
+    // Modify detectInImage method to save an instance of the bitmap
+    // being detected and save it in a global variable
+
+
+    // imageBitmap = image.bitmapInternal
+    /*imageBitmap = Bitmap.createBitmap(image)
+    Log.v ("\n\nImage Info", "imageBitmap: " + imageBitmap.toString())
+    Log.v ("\nBitmap Info", "image: " + image.toString())
+
+     */
+
     return detector.process(image)
   }
 
-  override fun onSuccess(image: InputImage, results: List<Face>, graphicOverlay: GraphicOverlay) {
+  // override fun onSuccess(originalCameraImage: Bitmap?, results: List<Face>, graphicOverlay: GraphicOverlay) {
+  override fun onSuccess(results: List<Face>, graphicOverlay: GraphicOverlay) {
     // currentBitmap is our originalCameraImage
-    Log.v (MANUAL_TESTING_LOG, "\n\nImage: " + image.toString())
-    Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
+    /*
+    if (originalCameraImage == null) {
+      Log.v("Bitmap Error", "originalCameraImage is Null")
+    }
+    */
+    /*
+    Log.v (MANUAL_TESTING_LOG, "\n\nImage: " + originalCameraImage)
+    var image = InputImage.fromBitmap(originalCameraImage, 0)
+
+    // .load(originalCameraImage)
+    Glide.with(detectedImage)
+            .load(image)
+            .into(detectedImage)
+     */
+
+    // graphicOverlay.clear()
+    // Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
 
     for (face in results) {
-      Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
+      // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
 
+      graphicOverlay.add(FaceGraphic(graphicOverlay, face))
+      logExtrasForTesting(face)
+
+      // val croppedImage = cropBitmap(imageBitmap, face.boundingBox)
+      // detectedImage?.setImageBitmap(croppedImage)
+    }
+
+
+  }
+  /*
+  override fun onSuccess(faces: List<Face>, graphicOverlay: GraphicOverlay) {
+    for (face in faces) {
       graphicOverlay.add(FaceGraphic(graphicOverlay, face))
       logExtrasForTesting(face)
     }
   }
-
+   */
   override fun onFailure(e: Exception) {
     Log.e(TAG, "Face detection failed $e")
+  }
+
+  // Create a crop method that takes a bitmap and Rect
+  // to focus only on the face
+  private fun cropBitmap (bitmap: Bitmap, rect: Rect) : Bitmap{
+    val w = rect.right - rect.left
+    val h = rect.bottom - rect.top
+
+    /*
+    var canvas = Canvas(ret)
+    canvas.drawBitmap(bitmap, -rect.left, -rect.top, null)
+    */
+
+    return Bitmap.createBitmap(w, h, bitmap.config)
   }
 
   companion object {
