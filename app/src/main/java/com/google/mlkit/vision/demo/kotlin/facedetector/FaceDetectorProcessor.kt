@@ -97,6 +97,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     // graphicOverlay.clear()
     // Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
 
+
+
     var croppedImage : Bitmap? = originalCameraImage
     for (face in results) {
       // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())

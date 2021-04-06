@@ -16,12 +16,9 @@
 
 package com.google.mlkit.vision.demo.kotlin
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.media.Image
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
@@ -30,7 +27,6 @@ import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
@@ -42,8 +38,6 @@ import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcesso
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
-import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
-import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import kotlinx.android.synthetic.main.activity_vision_live_preview.*
 import java.io.IOException
 import java.util.ArrayList
@@ -66,9 +60,11 @@ class LivePreviewActivity :
   private var selectedModel = OBJECT_DETECTION
 
   //Listview
-  private var imageID = arrayOf<Int>(R.drawable.shiba_inu)
-  private var name = arrayOf<String>("shiba_inu")
-  private var id = arrayOf<Int>(23)
+
+
+  // private var imageID = arrayOf<Int>(R.drawable.shiba_inu)
+  // private var name = arrayOf<String>("shiba_inu")
+  // private var id = arrayOf<Int>(23)
 
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +83,17 @@ class LivePreviewActivity :
     }
 
     // ListView
+    // var watchlistID: Int, var imageCode: Int,
+    // var name: String, var time: Text
+    var arrayWatchlist : ArrayList<WatchList> = ArrayList()
+    arrayWatchlist.add(WatchList(23, R.drawable.shiba_inu, "Shiba_inu", "April 7, 2021"))
+    arrayWatchlist.add(WatchList(27, R.drawable.shibaaa, "Shibaaaa", "Feb 14, 2021"))
+    arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
+    arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
+    arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
+
+    listView.adapter = CustomAdapter(this@LivePreviewActivity, arrayWatchlist)
+    /*
     val myListAdapter = MyListAdapter(this, imageID, name, id)
     listView.adapter = myListAdapter
 
@@ -94,15 +101,11 @@ class LivePreviewActivity :
     name += "Shiba"
     id += id
 
-    adapter.
+     */
 
-
-
+    // adapter.
 
     // var list = findViewById<ListView>(R.id.listView)
-
-
-
 
 
     // add Detected Image
