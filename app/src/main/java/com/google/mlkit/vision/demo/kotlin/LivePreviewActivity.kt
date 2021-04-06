@@ -43,6 +43,8 @@ import java.io.IOException
 import java.util.ArrayList
 
 var detectedImage: ImageView? = null
+var arrayWatchlist : ArrayList<WatchList> = ArrayList()
+var adapter : CustomAdapter? = null
 
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
@@ -85,14 +87,12 @@ class LivePreviewActivity :
     // ListView
     // var watchlistID: Int, var imageCode: Int,
     // var name: String, var time: Text
-    var arrayWatchlist : ArrayList<WatchList> = ArrayList()
     arrayWatchlist.add(WatchList(23, R.drawable.shiba_inu, "Shiba_inu", "April 7, 2021"))
     arrayWatchlist.add(WatchList(27, R.drawable.shibaaa, "Shibaaaa", "Feb 14, 2021"))
-    arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
-    arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
-    arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
 
-    listView.adapter = CustomAdapter(this@LivePreviewActivity, arrayWatchlist)
+    adapter = CustomAdapter(this@LivePreviewActivity, arrayWatchlist)
+    listView.setAdapter(adapter)
+
     /*
     val myListAdapter = MyListAdapter(this, imageID, name, id)
     listView.adapter = myListAdapter

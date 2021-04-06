@@ -27,8 +27,7 @@ import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
-import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
-import com.google.mlkit.vision.demo.kotlin.detectedImage
+import com.google.mlkit.vision.demo.kotlin.*
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
@@ -97,6 +96,17 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     // graphicOverlay.clear()
     // Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
 
+    /*
+    if (check == false) {
+      check = true
+      arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
+      arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
+      arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
+
+      adapter?.notifyDataSetChanged()
+
+    }*/
+
 
 
     var croppedImage : Bitmap? = originalCameraImage
@@ -128,12 +138,21 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
       if (w >= rect.right) w = rect.right
       if (h >= rect.bottom) h = rect.bottom
+
+      arrayWatchlist.drop(0)
+      // arrayWatchlist.add(WatchList(29, croppedImage, "Shiba_inu", "March 14, 2021"))
+      adapter?.notifyDataSetChanged()
+
+      /*
       Glide.with(detectedImage)
               .asBitmap()
               .load(croppedImage)
               .apply(RequestOptions().override(w, h))
               .into(detectedImage)
+
+       */
       }
+
 
 
   }
