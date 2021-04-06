@@ -18,9 +18,11 @@ package com.google.mlkit.vision.demo.kotlin.facedetector
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Bitmap.*
 import android.graphics.Rect
 import android.util.Log
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
@@ -32,6 +34,7 @@ import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.face.FaceLandmark
+import java.lang.Math.floor
 import java.util.Locale
 
 
@@ -102,12 +105,35 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       logExtrasForTesting(face)
 
       croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
-      Log.v("\n\nCropped Image", "croppedImage: " + croppedImage?.toString())
-      }
+
+
+      var rect = face.boundingBox
+
+      var rightcoord = rect.right
+      var leftcoord = rect.left
+      var topcoord = rect.top
+      var bottomcoord = rect.bottom
+
+
+      // if (rect.right < 0) rightcoord = 0
+      if (rect.left < 0) leftcoord = 0
+      if (rect.top < 0) topcoord = 0
+      // if (rect.bottom < 0) bottomcoord = 0
+
+      val ratio = (rect.right - rect.left)/100.0
+      var w = ((rect.right - rect.left)/ratio).toInt()
+      var h = ((rect.bottom - rect.top)/ratio).toInt()
+
+      if (w >= rect.right) w = rect.right
+      if (h >= rect.bottom) h = rect.bottom
       Glide.with(detectedImage)
               .asBitmap()
               .load(croppedImage)
+              .apply(RequestOptions().override(w, h))
               .into(detectedImage)
+      }
+
+
   }
   /*
   override fun onSuccess(faces: List<Face>, graphicOverlay: GraphicOverlay) {
@@ -124,15 +150,38 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   // Create a crop method that takes a bitmap and Rect
   // to focus only on the face
   private fun cropBitmap (bitmap: Bitmap?, rect: Rect): Bitmap? {
-    val w = rect.right - rect.left
-    val h = rect.bottom - rect.top
+    val ratio = (rect.right - rect.left)/100.0
+
+    // val w = ((rect.right - rect.left)/ratio).toInt()
+    // val h = ((rect.bottom - rect.top)/ratio).toInt()
+    var rightcoord = rect.right
+    var leftcoord = rect.left
+    var topcoord = rect.top
+    var bottomcoord = rect.bottom
+
+    // if (rect.right < 0) rightcoord = 0
+    if (rect.left < 0) leftcoord = 0
+    if (rect.top < 0) topcoord = 0
+    // if (rect.bottom < 0) bottomcoord = 0
+    var w = rightcoord - leftcoord
+    var h = bottomcoord - topcoord
+
+    // y + height must be <= bitmap.height()
+    if (h + topcoord >= bitmap!!.height) h = bitmap!!.height - topcoord - (h + topcoord - bitmap!!.height)
+    if (w + leftcoord >= bitmap!!.width) w = bitmap!!.width - leftcoord - (w + leftcoord - bitmap!!.width)
+
+
+
+
+    Log.v("\n\nCropped Image", "width: " + w.toString() + "\nheight: " + h.toString()
+            + "\nleftcoord: " + leftcoord.toString() + "\ntopcoord: " + topcoord.toString())
     // val w = 100
     // val h = 100
     /*
     var canvas = Canvas(ret)
     canvas.drawBitmap(bitmap, -rect.left, -rect.top, null)
     */
-    return Bitmap.createBitmap(bitmap!!, rect.left, rect.top, w, h)
+    return createBitmap(bitmap!!, leftcoord, topcoord, w, h)
 
     // return Bitmap.createBitmap(w, h, bitmap?.config!!)
   }
