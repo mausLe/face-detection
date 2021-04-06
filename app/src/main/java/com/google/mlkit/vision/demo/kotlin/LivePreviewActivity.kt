@@ -16,22 +16,18 @@
 
 package com.google.mlkit.vision.demo.kotlin
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.media.Image
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
-import android.widget.CompoundButton
-import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.Toast
-import android.widget.ToggleButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -48,6 +44,7 @@ import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
 import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import kotlinx.android.synthetic.main.activity_vision_live_preview.*
 import java.io.IOException
 import java.util.ArrayList
 
@@ -68,6 +65,12 @@ class LivePreviewActivity :
   private var graphicOverlay: GraphicOverlay? = null
   private var selectedModel = OBJECT_DETECTION
 
+  //Listview
+  private var imageID = arrayOf<Int>(R.drawable.shiba_inu)
+  private var name = arrayOf<String>("shiba_inu")
+  private var id = arrayOf<Int>(23)
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     Log.d(TAG, "onCreate")
@@ -82,6 +85,25 @@ class LivePreviewActivity :
     if (graphicOverlay == null) {
       Log.d(TAG, "graphicOverlay is null")
     }
+
+    // ListView
+    val myListAdapter = MyListAdapter(this, imageID, name, id)
+    listView.adapter = myListAdapter
+
+    imageID = imageID + R.drawable.shibaaa
+    name += "Shiba"
+    id += id
+
+    adapter.
+
+
+
+
+    // var list = findViewById<ListView>(R.id.listView)
+
+
+
+
 
     // add Detected Image
 

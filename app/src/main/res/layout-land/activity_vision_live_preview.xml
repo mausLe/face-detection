@@ -27,6 +27,13 @@
       app:layout_constraintEnd_toEndOf="parent"
       android:background="#000">
 
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="220dp"
+        android:layout_height="338dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="48dp" />
+
     <Spinner
         android:id="@+id/spinner"
         android:layout_width="match_parent"
@@ -54,13 +61,13 @@
 
     <ImageView
         android:id="@+id/detected_face"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="150dp"
-        android:contentDescription="detected_image"
-        />
+        android:layout_width="125dp"
+        android:layout_height="125dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="25dp"
+        android:contentDescription="detected_image" />
+
   </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
