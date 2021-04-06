@@ -148,10 +148,15 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
     val frameStartMs = SystemClock.elapsedRealtime()
     // If live viewport is on (that is the underneath surface view takes care of the camera preview
     // drawing), skip the unnecessary bitmap creation that used for the manual preview drawing.
+
+    /*
     val bitmap =
       if (PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context)) null
       else BitmapUtils.getBitmap(data, frameMetadata)
 
+     */
+    val bitmap = BitmapUtils.getBitmap(data, frameMetadata)
+    Log.v("\n\nBitmap Data", "bitmap: " + bitmap.toString())
     //Get the image from the
     /*
     InputImage.fromByteBuffer(
@@ -181,7 +186,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
      */
 
-
+    /*
     requestDetectInImage(
       InputImage.fromByteBuffer(
         data,
@@ -195,7 +200,19 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
       true,
       frameStartMs
     )
-      .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
+            .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
+
+     */
+
+    requestDetectInImage(
+            InputImage.fromBitmap(bitmap!!, 0),
+            graphicOverlay,
+            bitmap, /* shouldShowFps= */
+            true,
+            frameStartMs
+    )
+            .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
+
   }
 
   // -----------------Code for processing live preview frame from CameraX API-----------------------

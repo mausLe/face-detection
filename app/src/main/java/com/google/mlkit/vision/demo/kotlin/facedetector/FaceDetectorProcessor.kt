@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
+import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
 import com.google.mlkit.vision.demo.kotlin.detectedImage
 import com.google.mlkit.vision.face.Face
@@ -59,17 +60,13 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   }
 
   override fun detectInImage(image: InputImage): Task<List<Face>> {
-
-    // imageBitmap = image.()
     // Modify detectInImage method to save an instance of the bitmap
     // being detected and save it in a global variable
-
 
     // imageBitmap = image.bitmapInternal
     /*imageBitmap = Bitmap.createBitmap(image)
     Log.v ("\n\nImage Info", "imageBitmap: " + imageBitmap.toString())
     Log.v ("\nBitmap Info", "image: " + image.toString())
-
      */
 
     return detector.process(image)
@@ -105,8 +102,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // val croppedImage = cropBitmap(imageBitmap, face.boundingBox)
       // detectedImage?.setImageBitmap(croppedImage)
     }
-
-
   }
   /*
   override fun onSuccess(faces: List<Face>, graphicOverlay: GraphicOverlay) {
