@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import com.google.mlkit.vision.demo.R
 
 class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>) : BaseAdapter() {
@@ -46,7 +47,11 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
         }
 
         var watchList : WatchList = getItem(position) as WatchList
-        viewHolder.imageCode.setImageResource(watchList.imageCode)
+        Glide.with(viewHolder.imageCode)
+                .asBitmap()
+                .load(watchList.imageCode)
+                .into(viewHolder.imageCode)
+        // viewHolder.imageCode.setImageResource(watchList.imageCode)
         viewHolder.watchlistID.text = watchList.watchlistID.toString()
         viewHolder.name.text = watchList.name
         viewHolder.time.text = watchList.time.toString()

@@ -21,21 +21,19 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.*
 import android.graphics.Rect
 import android.util.Log
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
-import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.*
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.face.FaceLandmark
-import java.lang.Math.floor
-import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.*
 
+var i = 30
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -139,9 +137,18 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       if (w >= rect.right) w = rect.right
       if (h >= rect.bottom) h = rect.bottom
 
-      arrayWatchlist.drop(0)
-      // arrayWatchlist.add(WatchList(29, croppedImage, "Shiba_inu", "March 14, 2021"))
+      if (i == 30) {
+        // arrayWatchlist.removeAt(0)
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val currentDate = sdf.format(Date())
+        arrayWatchlist.add(0, WatchList(29, croppedImage, "Shiba_inu", currentDate))
+
+
+
+      }
       adapter?.notifyDataSetChanged()
+
+
 
       /*
       Glide.with(detectedImage)
@@ -152,6 +159,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
        */
       }
+    i -= 1
+    if (i == 0) i = 30
 
 
 

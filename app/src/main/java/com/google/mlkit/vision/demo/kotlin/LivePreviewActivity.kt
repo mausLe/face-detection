@@ -87,8 +87,8 @@ class LivePreviewActivity :
     // ListView
     // var watchlistID: Int, var imageCode: Int,
     // var name: String, var time: Text
-    arrayWatchlist.add(WatchList(23, R.drawable.shiba_inu, "Shiba_inu", "April 7, 2021"))
-    arrayWatchlist.add(WatchList(27, R.drawable.shibaaa, "Shibaaaa", "Feb 14, 2021"))
+    // arrayWatchlist.add(WatchList(23, R.drawable.shiba_inu, "Shiba_inu", "April 7, 2021"))
+    // arrayWatchlist.add(WatchList(27, R.drawable.shibaaa, "Shibaaaa", "Feb 14, 2021"))
 
     adapter = CustomAdapter(this@LivePreviewActivity, arrayWatchlist)
     listView.setAdapter(adapter)
