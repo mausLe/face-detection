@@ -156,7 +156,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
      */
     val bitmap = BitmapUtils.getBitmap(data, frameMetadata)
-    Log.v("\n\nBitmap Data", "bitmap: " + bitmap.toString())
+
     //Get the image from the
     /*
     InputImage.fromByteBuffer(
@@ -305,7 +305,8 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
       // this@VisionProcessorBase.onSuccess(image, results, graphicOverlay)
 
       // originalCameraImage is Bitmap
-      this@VisionProcessorBase.onSuccess(results, graphicOverlay)
+      // this@VisionProcessorBase.onSuccess(results, graphicOverlay)
+      this@VisionProcessorBase.onSuccess(originalCameraImage, results, graphicOverlay)
       graphicOverlay.postInvalidate()
     }
       .addOnFailureListener(executor) { e: Exception ->
@@ -344,8 +345,8 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
   protected abstract fun detectInImage(image: InputImage): Task<T>
 
-  // protected abstract fun onSuccess(originalCameraImage: Bitmap?, results: T, graphicOverlay: GraphicOverlay)
-  protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
+  protected abstract fun onSuccess(originalCameraImage: Bitmap?, results: T, graphicOverlay: GraphicOverlay)
+  // protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
 
   protected abstract fun onFailure(e: Exception)
 }

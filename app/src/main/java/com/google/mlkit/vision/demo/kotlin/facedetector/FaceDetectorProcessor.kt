@@ -41,6 +41,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
   lateinit var imageBitmap: Bitmap
   private val detector: FaceDetector
+  private var check = false
 
   init {
     val options = detectorOptions
@@ -72,8 +73,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     return detector.process(image)
   }
 
-  // override fun onSuccess(originalCameraImage: Bitmap?, results: List<Face>, graphicOverlay: GraphicOverlay) {
-  override fun onSuccess(results: List<Face>, graphicOverlay: GraphicOverlay) {
+  // override fun onSuccess(results: List<Face>, graphicOverlay: GraphicOverlay) {
+  override fun onSuccess(originalCameraImage: Bitmap?, results: List<Face>, graphicOverlay: GraphicOverlay) {
     // currentBitmap is our originalCameraImage
     /*
     if (originalCameraImage == null) {
@@ -93,15 +94,20 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     // graphicOverlay.clear()
     // Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
 
+    var croppedImage : Bitmap? = originalCameraImage
     for (face in results) {
       // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
 
       graphicOverlay.add(FaceGraphic(graphicOverlay, face))
       logExtrasForTesting(face)
 
-      // val croppedImage = cropBitmap(imageBitmap, face.boundingBox)
-      // detectedImage?.setImageBitmap(croppedImage)
-    }
+      croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
+      Log.v("\n\nCropped Image", "croppedImage: " + croppedImage?.toString())
+      }
+      Glide.with(detectedImage)
+              .asBitmap()
+              .load(croppedImage)
+              .into(detectedImage)
   }
   /*
   override fun onSuccess(faces: List<Face>, graphicOverlay: GraphicOverlay) {
@@ -117,16 +123,18 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
   // Create a crop method that takes a bitmap and Rect
   // to focus only on the face
-  private fun cropBitmap (bitmap: Bitmap, rect: Rect) : Bitmap{
+  private fun cropBitmap (bitmap: Bitmap?, rect: Rect): Bitmap? {
     val w = rect.right - rect.left
     val h = rect.bottom - rect.top
-
+    // val w = 100
+    // val h = 100
     /*
     var canvas = Canvas(ret)
     canvas.drawBitmap(bitmap, -rect.left, -rect.top, null)
     */
+    return Bitmap.createBitmap(bitmap!!, rect.left, rect.top, w, h)
 
-    return Bitmap.createBitmap(w, h, bitmap.config)
+    // return Bitmap.createBitmap(w, h, bitmap?.config!!)
   }
 
   companion object {

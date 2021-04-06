@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
+import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.objects.DetectedObject
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
@@ -52,7 +53,8 @@ class ObjectDetectorProcessor(context: Context, options: ObjectDetectorOptionsBa
     return detector.process(image)
   }
 
-  override fun onSuccess(results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
+  // override fun onSuccess(results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
+  override fun onSuccess(originalCameraImage: Bitmap?, results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
     for (result in results) {
       graphicOverlay.add(ObjectGraphic(graphicOverlay, result))
     }
