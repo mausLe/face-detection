@@ -32,8 +32,9 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.face.FaceLandmark
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
-var i = 30
+var index = 0
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -42,6 +43,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   lateinit var imageBitmap: Bitmap
   private val detector: FaceDetector
   private var check = false
+
+  // Using trackingId to determine if someone continue to appear on the screen view
+  // If he/she is out, then
+  private var currentID : ArrayList<Int> = arrayListOf()
 
   init {
     val options = detectorOptions
@@ -108,13 +113,33 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
 
     var croppedImage : Bitmap? = originalCameraImage
+
+
+    val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+    val currentDate = sdf.format(Date())
+    var faceChanged: Boolean = false
+    /*
+
+    try {
+      // Check if is there someone new and others are out of screen
+      if (results.size < currentID.size) {
+        currentID.clear()
+        faceChanged = true
+      }
+    }
+    catch (e: Exception)
+    {
+      currentID.add(results[0].trackingId)
+    }
+
+     */
+
     for (face in results) {
       // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
 
       graphicOverlay.add(FaceGraphic(graphicOverlay, face))
       logExtrasForTesting(face)
 
-      croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
 
 
       var rect = face.boundingBox
@@ -137,17 +162,22 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       if (w >= rect.right) w = rect.right
       if (h >= rect.bottom) h = rect.bottom
 
-      if (i == 30) {
-        // arrayWatchlist.removeAt(0)
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-        val currentDate = sdf.format(Date())
-        arrayWatchlist.add(0, WatchList(29, croppedImage, "Shiba_inu", currentDate))
+      if (w < 50 || h < 50 || h/w < 0.4 || w/h < 0.4) continue
+      croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
 
 
+      if (face.trackingId !in currentID) {
+        currentID.add(face.trackingId)
+
+
+        // arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, "Maus", currentDate))
+        arrayWatchlist.add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+        faceChanged = true
+        index += 1
+      }
 
       }
-      adapter?.notifyDataSetChanged()
-
+    if (faceChanged) adapter?.notifyDataSetChanged()
 
 
       /*
@@ -158,9 +188,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
               .into(detectedImage)
 
        */
-      }
-    i -= 1
-    if (i == 0) i = 30
 
 
 
