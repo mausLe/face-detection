@@ -110,8 +110,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
     }*/
 
-
-
     var croppedImage : Bitmap? = originalCameraImage
 
 
@@ -154,7 +152,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       if (rect.left < 0) leftcoord = 0
       if (rect.top < 0) topcoord = 0
       // if (rect.bottom < 0) bottomcoord = 0
+      var w = rightcoord - leftcoord
+      var h = bottomcoord - topcoord
 
+      /*
       val ratio = (rect.right - rect.left)/100.0
       var w = ((rect.right - rect.left)/ratio).toInt()
       var h = ((rect.bottom - rect.top)/ratio).toInt()
@@ -162,8 +163,19 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       if (w >= rect.right) w = rect.right
       if (h >= rect.bottom) h = rect.bottom
 
-      if (w < 50 || h < 50 || h/w < 0.4 || w/h < 0.4) continue
-      croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
+       */
+
+
+      // if (w < 50 || h < 50 || h/w < 0.5 || w/h < 0.5) continue
+      try {
+        if (w > 50 && h > 50 && h/w >= 0.5 && w/h >= 0.5) {
+          croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
+        }
+
+      }
+      catch (e : Exception) {
+        // do nothing
+      }
 
 
       if (face.trackingId !in currentID) {
@@ -238,7 +250,17 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     var canvas = Canvas(ret)
     canvas.drawBitmap(bitmap, -rect.left, -rect.top, null)
     */
-    return createBitmap(bitmap!!, leftcoord, topcoord, w, h)
+    var croppedBitmap = bitmap
+    try {
+      croppedBitmap = createBitmap(bitmap!!, leftcoord, topcoord, w, h)
+
+    }
+    catch (e : Exception){
+      return croppedBitmap
+    }
+
+
+    return croppedBitmap
 
     // return Bitmap.createBitmap(w, h, bitmap?.config!!)
   }
