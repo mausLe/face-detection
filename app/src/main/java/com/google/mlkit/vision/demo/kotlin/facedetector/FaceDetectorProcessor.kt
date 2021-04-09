@@ -21,6 +21,11 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.*
 import android.graphics.Rect
 import android.util.Log
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
@@ -43,6 +48,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   lateinit var imageBitmap: Bitmap
   private val detector: FaceDetector
   private var check = false
+  var context = context
 
   // Using trackingId to determine if someone continue to appear on the screen view
   // If he/she is out, then
@@ -59,6 +65,23 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
     Log.v(MANUAL_TESTING_LOG, "Face detector options: $options")
   }
+
+  // Volley HTTP Request
+  // Instantiate the RequestQueue.
+  val queue = Volley.newRequestQueue(context)
+  val url = "https://www.google.com"
+  var res = "The Response"
+
+  // Request a string response from the provided URL.
+  val stringRequest = StringRequest(Request.Method.GET, url,
+          Response.Listener<String> { response ->
+            // Display the first 500 characters of the response string.
+            res =  "Response is: ${response.substring(0, 500)}"
+            Log.v("HTTP Response", res)
+          },
+          Response.ErrorListener { error ->
+            res = "That didn't work!"
+            Log.v("HTTP Response", res) })
 
   override fun stop() {
     super.stop()
@@ -110,27 +133,16 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
     }*/
 
+
+
+
     var croppedImage : Bitmap? = originalCameraImage
 
 
     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
     val currentDate = sdf.format(Date())
     var faceChanged: Boolean = false
-    /*
 
-    try {
-      // Check if is there someone new and others are out of screen
-      if (results.size < currentID.size) {
-        currentID.clear()
-        faceChanged = true
-      }
-    }
-    catch (e: Exception)
-    {
-      currentID.add(results[0].trackingId)
-    }
-
-     */
 
     for (face in results) {
       // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
@@ -138,40 +150,29 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       graphicOverlay.add(FaceGraphic(graphicOverlay, face))
       logExtrasForTesting(face)
 
-
-
       var rect = face.boundingBox
-
       var rightcoord = rect.right
       var leftcoord = rect.left
       var topcoord = rect.top
       var bottomcoord = rect.bottom
 
 
-      // if (rect.right < 0) rightcoord = 0
       if (rect.left < 0) leftcoord = 0
       if (rect.top < 0) topcoord = 0
-      // if (rect.bottom < 0) bottomcoord = 0
-      var w = rightcoord - leftcoord
-      var h = bottomcoord - topcoord
+      var w = rightcoord - leftcoord + 1
+      var h = bottomcoord - topcoord + 1
 
-      /*
-      val ratio = (rect.right - rect.left)/100.0
-      var w = ((rect.right - rect.left)/ratio).toInt()
-      var h = ((rect.bottom - rect.top)/ratio).toInt()
+      if (h + topcoord >= originalCameraImage!!.height) {
+        h = originalCameraImage!!.height - topcoord
+      }
+      if (w + leftcoord >= originalCameraImage!!.width) {
+        w = originalCameraImage!!.width - leftcoord
+      }
 
-      if (w >= rect.right) w = rect.right
-      if (h >= rect.bottom) h = rect.bottom
-
-       */
-
-
-      // if (w < 50 || h < 50 || h/w < 0.5 || w/h < 0.5) continue
       try {
         if (w > 50 && h > 50 && h/w >= 0.5 && w/h >= 0.5) {
-          croppedImage = cropBitmap(originalCameraImage, face.boundingBox)
+          croppedImage = cropBitmap(originalCameraImage!!, leftcoord, topcoord, w, h)
         }
-
       }
       catch (e : Exception) {
         // do nothing
@@ -181,7 +182,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       if (face.trackingId !in currentID) {
         currentID.add(face.trackingId)
 
-
         // arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, "Maus", currentDate))
         arrayWatchlist.add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
         faceChanged = true
@@ -189,19 +189,15 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       }
 
       }
-    if (faceChanged) adapter?.notifyDataSetChanged()
+    if (faceChanged) {
+      adapter?.notifyDataSetChanged()
 
+      // Volley HTTP REquest
+      // Access the RequestQueue through your singleton class.
+      // Add the request to the RequestQueue.
+      queue.add(stringRequest)
 
-      /*
-      Glide.with(detectedImage)
-              .asBitmap()
-              .load(croppedImage)
-              .apply(RequestOptions().override(w, h))
-              .into(detectedImage)
-
-       */
-
-
+    }
 
   }
   /*
@@ -218,39 +214,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
   // Create a crop method that takes a bitmap and Rect
   // to focus only on the face
-  private fun cropBitmap (bitmap: Bitmap?, rect: Rect): Bitmap? {
-    val ratio = (rect.right - rect.left)/100.0
-
-    // val w = ((rect.right - rect.left)/ratio).toInt()
-    // val h = ((rect.bottom - rect.top)/ratio).toInt()
-    var rightcoord = rect.right
-    var leftcoord = rect.left
-    var topcoord = rect.top
-    var bottomcoord = rect.bottom
-
-    // if (rect.right < 0) rightcoord = 0
-    if (rect.left < 0) leftcoord = 0
-    if (rect.top < 0) topcoord = 0
-    // if (rect.bottom < 0) bottomcoord = 0
-    var w = rightcoord - leftcoord
-    var h = bottomcoord - topcoord
-
-    // y + height must be <= bitmap.height()
-    if (h + topcoord >= bitmap!!.height) h = bitmap!!.height - topcoord - (h + topcoord - bitmap!!.height)
-    if (w + leftcoord >= bitmap!!.width) w = bitmap!!.width - leftcoord - (w + leftcoord - bitmap!!.width)
-
-
-
-
-    Log.v("\n\nCropped Image", "width: " + w.toString() + "\nheight: " + h.toString()
-            + "\nleftcoord: " + leftcoord.toString() + "\ntopcoord: " + topcoord.toString())
-    // val w = 100
-    // val h = 100
-    /*
-    var canvas = Canvas(ret)
-    canvas.drawBitmap(bitmap, -rect.left, -rect.top, null)
-    */
+  private fun cropBitmap (bitmap: Bitmap, leftcoord: Int,
+                          topcoord: Int, w: Int, h: Int): Bitmap? {
     var croppedBitmap = bitmap
+
     try {
       croppedBitmap = createBitmap(bitmap!!, leftcoord, topcoord, w, h)
 
@@ -259,10 +226,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       return croppedBitmap
     }
 
-
     return croppedBitmap
-
-    // return Bitmap.createBitmap(w, h, bitmap?.config!!)
   }
 
   companion object {

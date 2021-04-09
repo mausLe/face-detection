@@ -347,6 +347,8 @@ class LivePreviewActivity :
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
   }
 
+
+
   companion object {
     private const val OBJECT_DETECTION = "Object Detection"
     private const val OBJECT_DETECTION_CUSTOM = "Custom Object Detection (Birds)"
