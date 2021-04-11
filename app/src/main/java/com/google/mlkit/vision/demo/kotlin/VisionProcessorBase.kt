@@ -149,63 +149,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
     graphicOverlay: GraphicOverlay
   ) {
     val frameStartMs = SystemClock.elapsedRealtime()
-    // If live viewport is on (that is the underneath surface view takes care of the camera preview
-    // drawing), skip the unnecessary bitmap creation that used for the manual preview drawing.
-
-    /*
-    val bitmap =
-      if (PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context)) null
-      else BitmapUtils.getBitmap(data, frameMetadata)
-
-     */
     val bitmap = BitmapUtils.getBitmap(data, frameMetadata)
-
-    //Get the image from the
-    /*
-    InputImage.fromByteBuffer(
-        data,
-        frameMetadata.width,
-        frameMetadata.height,
-        frameMetadata.rotation,
-        InputImage.IMAGE_FORMAT_NV21
-      )
-     */
-
-    // Convert ByteBuffer to Bitmap
-    // https://github.com/tensorflow/tensorflow/issues/34992
-    /*
-    data.rewind()
-    bytebuffer2Bitmap = Bitmap.createBitmap(frameMetadata.width, frameMetadata.height, Bitmap.Config.ARGB_8888)
-    val pixels = IntArray(frameMetadata.width * frameMetadata.height) // Set your expected data's height and width
-    for (i in 0 until frameMetadata.width * frameMetadata.height) {
-      val a = 0xFF
-      val r = data.float * 255.0f
-      val g = data.float * 255.0f
-      val b = data.float * 255.0f
-      pixels[i] = a shl 24 or (r.toInt() shl 16) or (g.toInt() shl 8) or b.toInt()
-    }
-    bytebuffer2Bitmap.setPixels(pixels, 0, frameMetadata.width, 0, 0, frameMetadata.width, frameMetadata.height)
-    Log.v ("\n\nTEST", "DATA: " + bytebuffer2Bitmap.toString())
-
-     */
-
-    /*
-    requestDetectInImage(
-      InputImage.fromByteBuffer(
-        data,
-        frameMetadata.width,
-        frameMetadata.height,
-        frameMetadata.rotation,
-        InputImage.IMAGE_FORMAT_NV21
-      ),
-      graphicOverlay,
-      bitmap, /* shouldShowFps= */
-      true,
-      frameStartMs
-    )
-            .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
-
-     */
 
     requestDetectInImage(
             InputImage.fromBitmap(bitmap!!, 0),

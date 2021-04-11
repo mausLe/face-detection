@@ -18,28 +18,27 @@ package com.google.mlkit.vision.demo.kotlin.facedetector
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Bitmap.*
-import android.graphics.Rect
+import android.graphics.Bitmap.createBitmap
 import android.util.Log
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
+import android.widget.Toast
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.kotlin.*
-import com.google.mlkit.vision.face.Face
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetector
-import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.google.mlkit.vision.face.FaceLandmark
+import com.google.mlkit.vision.demo.kotlin.api.Constants
+import com.google.mlkit.vision.demo.kotlin.api.model.Login
+import com.google.mlkit.vision.demo.kotlin.api.model.User
+import com.google.mlkit.vision.demo.kotlin.api.service.UserClient
+import com.google.mlkit.vision.face.*
+import okhttp3.ResponseBody
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 
 var index = 0
+
+
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -49,6 +48,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private val detector: FaceDetector
   private var check = false
   var context = context
+
+  private var TAG = "FaceDetectorProcessor"
 
   // Using trackingId to determine if someone continue to appear on the screen view
   // If he/she is out, then
@@ -66,22 +67,12 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     Log.v(MANUAL_TESTING_LOG, "Face detector options: $options")
   }
 
-  // Volley HTTP Request
-  // Instantiate the RequestQueue.
-  val queue = Volley.newRequestQueue(context)
-  val url = "https://www.google.com"
-  var res = "The Response"
+  var builder = Retrofit.Builder()
+          .baseUrl(Constants.BASE_URL) // change this IP for testing by your actual machine IP
+          .addConverterFactory(GsonConverterFactory.create())
 
-  // Request a string response from the provided URL.
-  val stringRequest = StringRequest(Request.Method.GET, url,
-          Response.Listener<String> { response ->
-            // Display the first 500 characters of the response string.
-            res =  "Response is: ${response.substring(0, 500)}"
-            Log.v("HTTP Response", res)
-          },
-          Response.ErrorListener { error ->
-            res = "That didn't work!"
-            Log.v("HTTP Response", res) })
+  var retrofit = builder.build()
+  var userClient = retrofit.create(UserClient::class.java)
 
   override fun stop() {
     super.stop()
@@ -132,10 +123,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       adapter?.notifyDataSetChanged()
 
     }*/
-
-
-
-
     var croppedImage : Bitmap? = originalCameraImage
 
 
@@ -195,7 +182,13 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // Volley HTTP REquest
       // Access the RequestQueue through your singleton class.
       // Add the request to the RequestQueue.
-      queue.add(stringRequest)
+      // queue.add(stringRequest)
+
+
+      login()
+      getSecret()
+      // fetchData()
+
 
     }
 
@@ -208,8 +201,129 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     }
   }
    */
+
+  /*
+  private fun fetchData() {
+
+    // Pass the token as parameter
+    apiClient.getApiService().fetchPosts(token = "Bearer ${sessionManager.fetchAuthToken()}")
+            .enqueue(object : Callback<PostsResponse> {
+              override fun onFailure(call: Call<PostsResponse>, t: Throwable) {
+                // Error fetching posts
+              }
+
+              override fun onResponse(call: Call<PostsResponse>, response: Response<PostsResponse>) {
+                // Handle function to display posts
+              }
+            })
+  }
+}
+
+   */
+
+  /*
+  private fun fetchData()
+  {
+    val api = Retrofit.Builder()
+            .baseUrl("http://service.mmlab.uit.edu.vn/checkinService_demo/search_face/post/") // change this IP for testing by your actual machine IP
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NoteClient::class.java)
+
+    GlobalScope.launch (Dispatchers.IO) {
+      val response = api.getToken().awaitResponse()
+
+      if (response.isSuccessful) {
+        val data: ThuaNguyenJSON = response.body()!!
+        Log.d(TAG, data.toString())
+      }
+    }
+  }
+
+   */
+
   override fun onFailure(e: Exception) {
     Log.e(TAG, "Face detection failed $e")
+  }
+  /*
+  fun addDummyUser() {
+    val apiService = RestApiManager()
+    val userInfo = UserInfo(
+            username = "tester1",
+            password = "tester1")
+
+    apiService.addUser(userInfo) {
+      if (it?.username != null) {
+        // it = newly added user parsed as response
+        // it?.id = newly added  user ID
+      } else {
+        Log.v("Error","Error registering new user")
+      }
+    }
+  }
+
+   */
+
+  private fun login() {
+    var login = Login("tester1", "tester1")
+    var call = userClient.login(login)
+    call!!.enqueue(object : Callback<User?>{
+      override fun onFailure(call: Call<User?>, t: Throwable) {
+        Log.v("Retrofit Res", t.toString())
+        Toast.makeText(context, "Error =(((",
+                Toast.LENGTH_SHORT).show()
+
+      }
+
+      override fun onResponse(call: Call<User?>, response: Response<User?>) {
+
+
+        if (response.isSuccessful) {
+          token = response.body()!!.getToken()
+
+          Toast.makeText(context, response.body().toString(),
+                  Toast.LENGTH_SHORT).show()
+
+          Log.v("Retrofit Res", response.toString())
+        }
+        else {
+          Toast.makeText(context, "Login not correct =((",
+                  Toast.LENGTH_SHORT).show()
+        }
+      }
+    })
+
+
+  }
+
+  private var token : String = "Token is Null"
+
+  private fun getSecret() {
+    var call = userClient.getSecret(token)
+
+    call!!.enqueue(object : Callback<ResponseBody?>{
+      override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+        Log.v("Retrofit Res", t.toString())
+        Toast.makeText(context, "Error =(((",
+                Toast.LENGTH_SHORT).show()
+
+      }
+
+      override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+        if (response.isSuccessful) {
+          try {
+            Toast.makeText(context, response.body().toString(),
+                    Toast.LENGTH_SHORT).show()
+            Log.v("Retrofit Res", response.toString())
+          }
+          catch (e : java.lang.Exception) {
+            Log.v("Retrofit Res", response.toString())
+            Toast.makeText(context, "Token not correct =((",
+                    Toast.LENGTH_SHORT).show()
+          }
+        }
+      }
+    })
   }
 
   // Create a crop method that takes a bitmap and Rect
