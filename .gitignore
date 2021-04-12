@@ -11,6 +11,7 @@
 .DS_Store
 /build
 /app/build
+app/src/main/java/com/google/mlkit/vision/demo/kotlin/api/Constants.kt
 /captures
 .externalNativeBuild
 .cxx

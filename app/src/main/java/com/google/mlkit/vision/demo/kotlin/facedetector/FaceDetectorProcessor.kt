@@ -117,11 +117,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   override fun onSuccess(originalCameraImage: Bitmap?, results: List<Face>, graphicOverlay: GraphicOverlay) {
     // currentBitmap is our originalCameraImage
     /*
-    if (originalCameraImage == null) {
-      Log.v("Bitmap Error", "originalCameraImage is Null")
-    }
-    */
-    /*
     Log.v (MANUAL_TESTING_LOG, "\n\nImage: " + originalCameraImage)
     var image = InputImage.fromBitmap(originalCameraImage, 0)
 
@@ -200,11 +195,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     if (faceChanged) {
       adapter?.notifyDataSetChanged()
 
-      // Volley HTTP REquest
-      // Access the RequestQueue through your singleton class.
-      // Add the request to the RequestQueue.
-      // queue.add(stringRequest)
-
       var decodedImage = encodeImage(croppedImage!!)
       // println("OOUUTT: ")
       // println(decodedImage)
@@ -238,44 +228,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   }
    */
 
-  /*
-  private fun fetchData() {
-
-    // Pass the token as parameter
-    apiClient.getApiService().fetchPosts(token = "Bearer ${sessionManager.fetchAuthToken()}")
-            .enqueue(object : Callback<PostsResponse> {
-              override fun onFailure(call: Call<PostsResponse>, t: Throwable) {
-                // Error fetching posts
-              }
-
-              override fun onResponse(call: Call<PostsResponse>, response: Response<PostsResponse>) {
-                // Handle function to display posts
-              }
-            })
-  }
-}
-
-   */
-  /*
-  private fun fetchData()
-  {
-    val api = Retrofit.Builder()
-            .baseUrl("http://service.mmlab.uit.edu.vn/checkinService_demo/search_face/post/") // change this IP for testing by your actual machine IP
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(NoteClient::class.java)
-
-    GlobalScope.launch (Dispatchers.IO) {
-      val response = api.getToken().awaitResponse()
-
-      if (response.isSuccessful) {
-        val data: ThuaNguyenJSON = response.body()!!
-        Log.d(TAG, data.toString())
-      }
-    }
-  }
-
-   */
 
   fun encodeImage(bm: Bitmap): String? {
     val baos = ByteArrayOutputStream()
