@@ -53,7 +53,7 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
                 .into(viewHolder.imageCode)
         // viewHolder.imageCode.setImageResource(watchList.imageCode)
         viewHolder.watchlistID.text = "No. " + watchList.watchlistID.toString()
-        viewHolder.name.text = "ID: " + watchList.name
+        viewHolder.name.text = watchList.name
         viewHolder.time.text = watchList.time.toString()
 
         return view as View

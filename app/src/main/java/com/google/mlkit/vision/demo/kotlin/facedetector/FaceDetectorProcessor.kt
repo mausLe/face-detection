@@ -187,47 +187,21 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
         // arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, "Maus", currentDate))
         arrayWatchlist.add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
-        faceChanged = true
+
+        adapter?.notifyDataSetChanged()
+
+
+        var decodedImage = encodeImage(croppedImage!!) // Encode Base64 for bitmap
+        // Decode to UTF-8
+        var utf = String(decodedImage!!.toByteArray(), Charset.forName("UTF-8"))
+        sendData(utf, index)
+
         index += 1
+        
       }
 
       }
-    if (faceChanged) {
-      adapter?.notifyDataSetChanged()
-
-      var decodedImage = encodeImage(croppedImage!!)
-      // println("OOUUTT: ")
-      // println(decodedImage)
-      // decodedImage = Constants.test1Base64
-
-
-      // Pass
-      //var utf = encode(decodedImage, "UTF-8")
-      var utf = String(decodedImage!!.toByteArray(), Charset.forName("UTF-8"))
-      sendData(utf)
-
-      /*
-      // var decodedImage = Base64.decode(BitmapToBase64(croppedImage!!).toString(), Base64.DEFAULT)
-
-      //sendData(R.drawable.shibaaa.toString())
-      // sendData(decodedImage.toString())
-      // sendData(String(decodedImage, StandardCharsets.UTF_8))
-      // getData()
-      login()
-      getSecret()
-
-       */
-    }
   }
-  /*
-  override fun onSuccess(faces: List<Face>, graphicOverlay: GraphicOverlay) {
-    for (face in faces) {
-      graphicOverlay.add(FaceGraphic(graphicOverlay, face))
-      logExtrasForTesting(face)
-    }
-  }
-   */
-
 
   fun encodeImage(bm: Bitmap): String? {
     val baos = ByteArrayOutputStream()
@@ -236,12 +210,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     return Base64.encodeToString(b, Base64.DEFAULT)
   }
 
-  fun BitmapToBase64(bitmap: Bitmap): String? {
-    val byteArrayOutputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-    val byteArray = byteArrayOutputStream.toByteArray()
-    return Base64.encodeToString(byteArray, Base64.DEFAULT)
-  }
   override fun onFailure(e: Exception) {
     Log.e(TAG, "Face detection failed $e")
   }
@@ -307,39 +275,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     })
   }
 
-  /*
-  private  fun getData() {
-    var call: Call<ResponseBody?>? = imageData.getData()
-
-    call!!.enqueue(object : Callback<ResponseBody?>{
-      override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-        Log.v("Retrofit getData onFail", "Fail")
-        Toast.makeText(context, "Error =(((",
-                Toast.LENGTH_SHORT).show()
-
-      }
-
-      override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-        if (response.isSuccessful) {
-          try {
-            Toast.makeText(context, token,
-                    Toast.LENGTH_SHORT).show()
-            Log.v("Retrofit getData onRes", token)
-          }
-          catch (e : java.lang.Exception) {
-            Log.v("Retrofit getData Catch", response.toString())
-            Toast.makeText(context, "Token not correct =((",
-                    Toast.LENGTH_SHORT).show()
-          }
-        }
-      }
-    })
-  }
-
-   */
-
   // Request Image
-  private fun sendData(imageCode : String) {
+  private fun sendData(imageCode : String, pos: Int){
     // Init data: field value
     val mydata = data()
     mydata.setImageEncoded(imageCode)
@@ -354,6 +291,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     faceData.setData(mydata)
 
     var data = imageData.postData(faceData)
+
+    //return values
+    var name = "Unknown"
+    var id = "Unknown"
 
     try {
       data!!.enqueue(object : Callback<ServerData?>{
@@ -375,85 +316,81 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
             var display = receiveData.toString()
             // serverResponse = serverData.data.student_id
 
-
             when {
                 serverCode.toInt() == 1000 -> {
+                  /*
                   Log.v("MMLab response: ", "Code "+ serverCode
                           + "\nStatus " + serverStatus + "\nStudent: " + serverData.student_name)
+                   */
+                  name = serverData.student_name
                   Toast.makeText(context, "Name: " + serverData.student_name,
                           Toast.LENGTH_SHORT).show()
+                  // Re-assign Name
+                  println("WatchLlist: " + arrayWatchlist)
+                  arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+                  // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+                  adapter?.notifyDataSetChanged()
                 }
                 serverCode.toInt() == 704 -> {
-                    Log.v("MMLab response: ", "Code "+ serverCode
+                  /*
+                  Log.v("MMLab response: ", "Code "+ serverCode
                             + "\nStatus " + serverStatus + "\nStudent: Unknown")
+                   */
                     Toast.makeText(context, "Name: Unknown",
                             Toast.LENGTH_SHORT).show()
+
+                  // Re-assign Name
+                  println("WatchLlist: " + arrayWatchlist)
+                  arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+                  // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+                  adapter?.notifyDataSetChanged()
+
                 }
                 else -> {
                   Log.v("MMLab response: ", "Code "+ serverCode
-                          + "\nStatus " + serverStatus)
+                  + "\nStatus " + serverStatus)
+                  name = "Error!"
                   Toast.makeText(context, "Code " + serverCode,
                           Toast.LENGTH_SHORT).show()
+
+                  // Re-assign Name
+                  println("WatchLlist: " + arrayWatchlist)
+                  arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+                  // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+                  adapter?.notifyDataSetChanged()
 
                 }
             }
           }
           else {
+            name = "Error!"
             Log.v("Retrofit sendD Res else", "Fail")
             Toast.makeText(context, "Can not Search =((",
                     Toast.LENGTH_SHORT).show()
+
+            // Re-assign Name
+            println("WatchLlist: " + arrayWatchlist)
+            arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+            // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+            adapter?.notifyDataSetChanged()
           }
         }
       })
     }
     catch (e : Exception)
     {
+      name = "Error!"
       Log.v("Retrofit catch", "Fail")
-    }
-    // this one works but server returns wrong input
-    /*
-    var faceData = data(imageCode, "0", "0", "0")
-    // var ThuaNguyenData = ThuaNguyenJSONX(faceData, Constants.token)
 
-    // var searchFace = SearchFace(Constants.token, faceData)
-    var search = imageData.postData(Constants.token, faceData)
-
-    try {
-      search!!.enqueue(object : Callback<ServerData?>{
-
-        override fun onFailure(call: Call<ServerData?>, t: Throwable) {
-
-          Log.v("Retrofit sendD Fail Res", t.toString())
-          Toast.makeText(context, "Error =(((",
-            Toast.LENGTH_SHORT).show()
-        }
-
-        override fun onResponse(call: Call<ServerData?>, response: Response<ServerData?>) {
-          if (response.isSuccessful) {
-            var serverData : String = response.body()!!.toString()
-            // serverResponse = serverData.data.student_id
-            Toast.makeText(context, serverData,
-              Toast.LENGTH_SHORT).show()
-
-            Log.v("Retrofit sendD Res", response.body().toString())
-          }
-          else {
-            Log.v("Retrofit sendD Res else", "Fail")
-            Toast.makeText(context, "Can not Search =((",
-              Toast.LENGTH_SHORT).show()
-          }
-        }
-      })
-    }
-    catch (e : Exception)
-    {
-      Log.v("Retrofit catch", "Fail")
+      // Re-assign Name
+      println("WatchLlist: " + arrayWatchlist)
+      arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+      // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+      adapter?.notifyDataSetChanged()
     }
 
-     */
 
   }
-
 
   // Create a crop method that takes a bitmap and Rect
   // to focus only on the face
