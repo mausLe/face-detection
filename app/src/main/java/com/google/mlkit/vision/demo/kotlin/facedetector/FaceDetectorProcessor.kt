@@ -19,22 +19,40 @@ package com.google.mlkit.vision.demo.kotlin.facedetector
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
+import android.os.Build
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
-import com.google.mlkit.vision.demo.kotlin.*
+import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
+import com.google.mlkit.vision.demo.kotlin.WatchList
+import com.google.mlkit.vision.demo.kotlin.adapter
 import com.google.mlkit.vision.demo.kotlin.api.Constants
+import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceData
+import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.data
 import com.google.mlkit.vision.demo.kotlin.api.model.Login
 import com.google.mlkit.vision.demo.kotlin.api.model.User
+import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
 import com.google.mlkit.vision.demo.kotlin.api.service.UserClient
+import com.google.mlkit.vision.demo.kotlin.arrayWatchlist
 import com.google.mlkit.vision.face.*
 import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.ByteArrayOutputStream
+import java.net.URLEncoder
+import java.net.URLEncoder.*
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.*
-import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
 
 var index = 0
 
@@ -74,6 +92,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   var retrofit = builder.build()
   var userClient = retrofit.create(UserClient::class.java)
 
+  var imageData = retrofit.create(ImageData::class.java)
+
   override fun stop() {
     super.stop()
     detector.close()
@@ -93,6 +113,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   }
 
   // override fun onSuccess(results: List<Face>, graphicOverlay: GraphicOverlay) {
+  @RequiresApi(Build.VERSION_CODES.KITKAT)
   override fun onSuccess(originalCameraImage: Bitmap?, results: List<Face>, graphicOverlay: GraphicOverlay) {
     // currentBitmap is our originalCameraImage
     /*
@@ -184,14 +205,29 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // Add the request to the RequestQueue.
       // queue.add(stringRequest)
 
+      var decodedImage = encodeImage(croppedImage!!)
+      // println("OOUUTT: ")
+      // println(decodedImage)
+      // decodedImage = Constants.test1Base64
 
+
+      // Pass
+      //var utf = encode(decodedImage, "UTF-8")
+      var utf = String(decodedImage!!.toByteArray(), Charset.forName("UTF-8"))
+      sendData(utf)
+
+      /*
+      // var decodedImage = Base64.decode(BitmapToBase64(croppedImage!!).toString(), Base64.DEFAULT)
+
+      //sendData(R.drawable.shibaaa.toString())
+      // sendData(decodedImage.toString())
+      // sendData(String(decodedImage, StandardCharsets.UTF_8))
+      // getData()
       login()
       getSecret()
-      // fetchData()
 
-
+       */
     }
-
   }
   /*
   override fun onSuccess(faces: List<Face>, graphicOverlay: GraphicOverlay) {
@@ -220,7 +256,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 }
 
    */
-
   /*
   private fun fetchData()
   {
@@ -242,68 +277,62 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
    */
 
+  fun encodeImage(bm: Bitmap): String? {
+    val baos = ByteArrayOutputStream()
+    bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+    val b = baos.toByteArray()
+    return Base64.encodeToString(b, Base64.DEFAULT)
+  }
+
+  fun BitmapToBase64(bitmap: Bitmap): String? {
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+    val byteArray = byteArrayOutputStream.toByteArray()
+    return Base64.encodeToString(byteArray, Base64.DEFAULT)
+  }
   override fun onFailure(e: Exception) {
     Log.e(TAG, "Face detection failed $e")
   }
-  /*
-  fun addDummyUser() {
-    val apiService = RestApiManager()
-    val userInfo = UserInfo(
-            username = "tester1",
-            password = "tester1")
-
-    apiService.addUser(userInfo) {
-      if (it?.username != null) {
-        // it = newly added user parsed as response
-        // it?.id = newly added  user ID
-      } else {
-        Log.v("Error","Error registering new user")
-      }
-    }
-  }
-
-   */
 
   private fun login() {
-    var login = Login("tester1", "tester1")
+    var login = Login(Constants.user_name, Constants.password)
     var call = userClient.login(login)
     call!!.enqueue(object : Callback<User?>{
       override fun onFailure(call: Call<User?>, t: Throwable) {
         Log.v("Retrofit Res", t.toString())
         Toast.makeText(context, "Error =(((",
                 Toast.LENGTH_SHORT).show()
-
       }
 
       override fun onResponse(call: Call<User?>, response: Response<User?>) {
 
-
         if (response.isSuccessful) {
           token = response.body()!!.getToken()
 
-          Toast.makeText(context, response.body().toString(),
+          Toast.makeText(context, token,
                   Toast.LENGTH_SHORT).show()
 
-          Log.v("Retrofit Res", response.toString())
+          Log.v("Retrofit Res", response.body().toString())
         }
         else {
+          Log.v("Retrofit Res", "Fail")
           Toast.makeText(context, "Login not correct =((",
                   Toast.LENGTH_SHORT).show()
         }
       }
     })
-
-
   }
 
   private var token : String = "Token is Null"
+
+  // private lateinit var serverResponse : DataX
 
   private fun getSecret() {
     var call = userClient.getSecret(token)
 
     call!!.enqueue(object : Callback<ResponseBody?>{
       override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-        Log.v("Retrofit Res", t.toString())
+        Log.v("Retrofit Res", "Fail")
         Toast.makeText(context, "Error =(((",
                 Toast.LENGTH_SHORT).show()
 
@@ -312,9 +341,9 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
         if (response.isSuccessful) {
           try {
-            Toast.makeText(context, response.body().toString(),
+            Toast.makeText(context, token,
                     Toast.LENGTH_SHORT).show()
-            Log.v("Retrofit Res", response.toString())
+            Log.v("Retrofit Res", token)
           }
           catch (e : java.lang.Exception) {
             Log.v("Retrofit Res", response.toString())
@@ -325,6 +354,154 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       }
     })
   }
+
+  /*
+  private  fun getData() {
+    var call: Call<ResponseBody?>? = imageData.getData()
+
+    call!!.enqueue(object : Callback<ResponseBody?>{
+      override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+        Log.v("Retrofit getData onFail", "Fail")
+        Toast.makeText(context, "Error =(((",
+                Toast.LENGTH_SHORT).show()
+
+      }
+
+      override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+        if (response.isSuccessful) {
+          try {
+            Toast.makeText(context, token,
+                    Toast.LENGTH_SHORT).show()
+            Log.v("Retrofit getData onRes", token)
+          }
+          catch (e : java.lang.Exception) {
+            Log.v("Retrofit getData Catch", response.toString())
+            Toast.makeText(context, "Token not correct =((",
+                    Toast.LENGTH_SHORT).show()
+          }
+        }
+      }
+    })
+  }
+
+   */
+
+  // Request Image
+  private fun sendData(imageCode : String) {
+    // Init data: field value
+    val mydata = data()
+    mydata.setImageEncoded(imageCode)
+    // mydata.setImageEncoded(Constants.test1Encoded)
+    mydata.setClassId("0")
+    mydata.setModel("0")
+    mydata.setClassifier("0")
+
+    // Init transmit frame
+    var faceData = FaceData()
+    faceData.setToken(Constants.token)
+    faceData.setData(mydata)
+
+    var data = imageData.postData(faceData)
+
+    try {
+      data!!.enqueue(object : Callback<ServerData?>{
+        override fun onFailure(call: Call<ServerData?>, t: Throwable) {
+
+          Log.v("Retrofit sendD Fail Res", t.toString())
+          Toast.makeText(context, "Error =(((",
+                  Toast.LENGTH_SHORT).show()
+        }
+
+        override fun onResponse(call: Call<ServerData?>, response: Response<ServerData?>) {
+          if (response.isSuccessful) {
+            var receiveData : ServerData = response.body()!!
+
+            var serverData = receiveData.getData()
+            var serverCode = receiveData.getCode()
+            var serverStatus = receiveData.getStatus()
+
+            var display = receiveData.toString()
+            // serverResponse = serverData.data.student_id
+
+
+            when {
+                serverCode.toInt() == 1000 -> {
+                  Log.v("MMLab response: ", "Code "+ serverCode
+                          + "\nStatus " + serverStatus + "\nStudent: " + serverData.student_name)
+                  Toast.makeText(context, "Name: " + serverData.student_name,
+                          Toast.LENGTH_SHORT).show()
+                }
+                serverCode.toInt() == 704 -> {
+                    Log.v("MMLab response: ", "Code "+ serverCode
+                            + "\nStatus " + serverStatus + "\nStudent: Unknown")
+                    Toast.makeText(context, "Name: Unknown",
+                            Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                  Log.v("MMLab response: ", "Code "+ serverCode
+                          + "\nStatus " + serverStatus)
+                  Toast.makeText(context, "Code " + serverCode,
+                          Toast.LENGTH_SHORT).show()
+
+                }
+            }
+          }
+          else {
+            Log.v("Retrofit sendD Res else", "Fail")
+            Toast.makeText(context, "Can not Search =((",
+                    Toast.LENGTH_SHORT).show()
+          }
+        }
+      })
+    }
+    catch (e : Exception)
+    {
+      Log.v("Retrofit catch", "Fail")
+    }
+    // this one works but server returns wrong input
+    /*
+    var faceData = data(imageCode, "0", "0", "0")
+    // var ThuaNguyenData = ThuaNguyenJSONX(faceData, Constants.token)
+
+    // var searchFace = SearchFace(Constants.token, faceData)
+    var search = imageData.postData(Constants.token, faceData)
+
+    try {
+      search!!.enqueue(object : Callback<ServerData?>{
+
+        override fun onFailure(call: Call<ServerData?>, t: Throwable) {
+
+          Log.v("Retrofit sendD Fail Res", t.toString())
+          Toast.makeText(context, "Error =(((",
+            Toast.LENGTH_SHORT).show()
+        }
+
+        override fun onResponse(call: Call<ServerData?>, response: Response<ServerData?>) {
+          if (response.isSuccessful) {
+            var serverData : String = response.body()!!.toString()
+            // serverResponse = serverData.data.student_id
+            Toast.makeText(context, serverData,
+              Toast.LENGTH_SHORT).show()
+
+            Log.v("Retrofit sendD Res", response.body().toString())
+          }
+          else {
+            Log.v("Retrofit sendD Res else", "Fail")
+            Toast.makeText(context, "Can not Search =((",
+              Toast.LENGTH_SHORT).show()
+          }
+        }
+      })
+    }
+    catch (e : Exception)
+    {
+      Log.v("Retrofit catch", "Fail")
+    }
+
+     */
+
+  }
+
 
   // Create a crop method that takes a bitmap and Rect
   // to focus only on the face

@@ -1,7 +1,7 @@
 package api
 
 data class ThuaNguyenJSONX(
-    val `data`: Data,
-    val token: String
+        val faceData: ArrayList<data>,
+        val token: String
 )
 
