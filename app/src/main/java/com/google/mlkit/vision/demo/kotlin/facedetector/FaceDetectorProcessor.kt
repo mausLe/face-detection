@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
@@ -40,7 +41,6 @@ import com.google.mlkit.vision.demo.kotlin.api.model.User
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
 import com.google.mlkit.vision.demo.kotlin.api.service.UserClient
 import com.google.mlkit.vision.demo.kotlin.arrayWatchlist
-import com.google.mlkit.vision.demo.kotlin.iojson.Member
 import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
 import com.google.mlkit.vision.face.*
 import okhttp3.ResponseBody
@@ -50,6 +50,8 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
+import java.io.FileReader
 import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
@@ -101,8 +103,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private var appearTime : Array<IntArray> = Array(1000) {IntArray(2) {0} }
 
   var gson : Gson = Gson()
-  var member = ArrayList<Member>()
-  var watchlist = Watchlist(member)
+  var watchlist = ArrayList<Watchlist>()
 
   init {
     val options = detectorOptions
@@ -414,16 +415,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
   private  fun broadcastArrayWatchlistChanged(pos : Int, name : String) {
     // Re-assign Name
-    // println("WatchLlist: " + arrayWatchlist)
+    // println("WatchList: " + arrayWatchlist)
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
     adapter?.notifyDataSetChanged()
-  }
-
-  private fun insertWatchList(member: Member) {
-    // watchlist.add(member)
-
-
   }
 
   // Request Image
@@ -459,8 +454,11 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
             var display = receiveData.toString()
             // serverResponse = serverData.data.student_id
 
+
+
             when {
                 serverCode.toInt() == 1000 -> {
+
                   Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus" +
                           "\nStudent: ${serverData.student_name}")
                   name = serverData.student_name
@@ -468,9 +466,17 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                           Toast.LENGTH_SHORT).show()
 
                   // Add name to
-                  var newMember = Member(serverData.student_name, serverData.student_id, serverData.image_id)
+                  var type = when(serverData.student_id.length) {
+                    5 -> "Teacher"
+                    8 -> "Student"
+                    else -> "Other"
+                  }
+                  if (serverData.student_id == "17520237") type = "Teacher" // Teacher will be marked as red
+                  watchlist.add(Watchlist(serverData.student_id, serverData.student_name, serverData.image_id, type))
 
 
+
+                  var a = 1 + 2
                   // Re-assign Name
                   broadcastArrayWatchlistChanged(pos, name)
                 }
@@ -478,7 +484,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus\nStudent: Unknown")
                     Toast.makeText(context, "Name: Unknown",
                             Toast.LENGTH_SHORT).show()
-
 
                   // Re-assign Name
                   broadcastArrayWatchlistChanged(pos, name)
@@ -489,10 +494,23 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   name = "Error!"
                   Toast.makeText(context, "Code $serverCode",
                           Toast.LENGTH_SHORT).show()
+
                   broadcastArrayWatchlistChanged(pos, name)
 
                 }
             }
+            // Log.v("Watchlist GSON", memberGson.toString())
+            if (index == 5) {
+              var json = gson.toJson(watchlist)
+              Log.v("Watchlist JSON", json)
+
+            }
+
+            // var json = "[{\"id\":\"17520237\",\"imageId\":\"1618428463.6149511\",\"name\":\"Lê Tuấn Anh\",\"type\":\"Student\"},{\"id\":\"17520237\",\"imageId\":\"1618428467.9385846\",\"name\":\"Lê Tuấn Anh\",\"type\":\"Student\"},{\"id\":\"18520833\",\"imageId\":\"1618428471.503557\",\"name\":\"Lê Bảo Huy\",\"type\":\"Student\"},{\"id\":\"80197\",\"imageId\":\"1618428474.5133421\",\"name\":\"Thầy Đỗ Văn Tiến\",\"type\":\"Teacher\"},{\"id\":\"80036\",\"imageId\":\"1618428480.1334958\",\"name\":\"Thầy Lê Đình Duy\",\"type\":\"Teacher\"}]"
+
+            // var memberGson = gson.fromJson(json, Array<Watchlist>::class.java).toList()
+            // Log.v("Watchlist GSON", memberGson.toString())
+
           }
           else {
             name = "Error!"
@@ -515,6 +533,17 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
       broadcastArrayWatchlistChanged(pos, name)
     }
+
+
+  }
+
+  // Load json file from disk
+  @Throws(FileNotFoundException::class)
+  open fun <T> getFile(fileName: String?, type: Class<T>?): T? {
+    val gson: Gson = GsonBuilder()
+            .create()
+    val json = FileReader(fileName)
+    return gson.fromJson(json, type)
   }
 
   // Create a crop method that takes a bitmap and Rect

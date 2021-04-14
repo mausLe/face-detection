@@ -10,4 +10,7 @@ class Member (
         private var mID: String,
 
         @SerializedName("imageId")
-        private var mImageID: String)
+        private var mImageID: String,
+
+        @SerializedName("characteristic")
+        private var characteristic: String)
