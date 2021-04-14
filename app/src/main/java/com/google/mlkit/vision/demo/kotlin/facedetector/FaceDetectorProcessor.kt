@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import api.ServerData
 import com.google.android.gms.tasks.Task
+import com.google.gson.Gson
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
@@ -39,6 +40,8 @@ import com.google.mlkit.vision.demo.kotlin.api.model.User
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
 import com.google.mlkit.vision.demo.kotlin.api.service.UserClient
 import com.google.mlkit.vision.demo.kotlin.arrayWatchlist
+import com.google.mlkit.vision.demo.kotlin.iojson.Member
+import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
 import com.google.mlkit.vision.face.*
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -47,16 +50,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
-import java.net.URLEncoder
-import java.net.URLEncoder.*
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 var index = 0
-
-
+var passedFrame = 0
+var maxHuman = 30
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -66,12 +67,42 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private val detector: FaceDetector
   private var check = false
   var context = context
+  val landMarkTypes = intArrayOf(
+          FaceLandmark.MOUTH_BOTTOM,
+          FaceLandmark.MOUTH_RIGHT,
+          FaceLandmark.MOUTH_LEFT,
+          FaceLandmark.RIGHT_EYE,
+          FaceLandmark.LEFT_EYE,
+          FaceLandmark.RIGHT_EAR,
+          FaceLandmark.LEFT_EAR,
+          FaceLandmark.RIGHT_CHEEK,
+          FaceLandmark.LEFT_CHEEK,
+          FaceLandmark.NOSE_BASE
+  )
+  val landMarkTypesStrings = arrayOf(
+          "MOUTH_BOTTOM",
+          "MOUTH_RIGHT",
+          "MOUTH_LEFT",
+          "RIGHT_EYE",
+          "LEFT_EYE",
+          "RIGHT_EAR",
+          "LEFT_EAR",
+          "RIGHT_CHEEK",
+          "LEFT_CHEEK",
+          "NOSE_BASE"
+  )
 
   private var TAG = "FaceDetectorProcessor"
 
   // Using trackingId to determine if someone continue to appear on the screen view
   // If he/she is out, then
   private var currentID : ArrayList<Int> = arrayListOf()
+  // private var appearTime : Array<IntArray> = Array(1000) {IntArray(2) {} }
+  private var appearTime : Array<IntArray> = Array(1000) {IntArray(2) {0} }
+
+  var gson : Gson = Gson()
+  var member = ArrayList<Member>()
+  var watchlist = Watchlist(member)
 
   init {
     val options = detectorOptions
@@ -83,6 +114,15 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     detector = FaceDetection.getClient(options)
 
     Log.v(MANUAL_TESTING_LOG, "Face detector options: $options")
+
+    // Init appearTime to skip the first 4 times of every human
+    // and record a 5th time
+    /*
+    for (i in 1 until maxHuman) {
+      appearTime[i - 1] = 1
+    }
+
+     */
   }
 
   var builder = Retrofit.Builder()
@@ -151,7 +191,26 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
 
       graphicOverlay.add(FaceGraphic(graphicOverlay, face))
-      logExtrasForTesting(face)
+
+      // Display landmark/contour info
+      // logExtrasForTesting(face)
+      // Euler Y angle      -           Detectable landmarks
+      // -36 degrees to -12 degrees
+      // ---> left mouth, nose base, bottom mouth, right eye, left eye, left cheek, left ear tip
+
+      // -12 degrees to 12 degrees
+      // ---> right eye, left eye, nose base, left cheek, right cheek, left mouth,
+      // right mouth, bottom mouth
+
+      // 12 degrees to 36 degrees
+      // ---> right mouth, nose base, bottom mouth, left eye, right eye, right cheek, right ear tip
+
+      if (face.headEulerAngleY > 36 || face.headEulerAngleY < -36) continue
+
+      // Facing upward
+      if (face.headEulerAngleX > 20 || face.headEulerAngleY < -15) continue
+
+
 
       var rect = face.boundingBox
       var rightcoord = rect.right
@@ -173,22 +232,83 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       }
 
       try {
-        if (w > 50 && h > 50 && h/w >= 0.5 && w/h >= 0.5) {
+        // Try to increase h to 0.7*originalCameraImage!!.height
+        if (w > 50 && h > 50 && h/w >= 0.3 && w/h >= 0.3) {
           croppedImage = cropBitmap(originalCameraImage!!, leftcoord, topcoord, w, h)
         }
+        else continue
       }
       catch (e : Exception) {
         // do nothing
+        continue
       }
 
+      /*
 
-      if (face.trackingId !in currentID) {
-        currentID.add(face.trackingId)
+      val time = currentID.indexOf(face.trackingId)
+      if (face.trackingId in currentID && appearTime[time] >= 5) {
+        if (currentID.size > 30)  currentID.drop(29)
+        currentID.add(0, face.trackingId)
 
         // arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, "Maus", currentDate))
         arrayWatchlist.add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
 
         adapter?.notifyDataSetChanged()
+
+        /*
+        var decodedImage = encodeImage(croppedImage!!) // Encode Base64 for bitmap
+        // Decode to UTF-8
+        var utf = String(decodedImage!!.toByteArray(), Charset.forName("UTF-8"))
+        sendData(utf, index)
+
+         */
+      }
+
+       */
+
+      /*
+
+      if (face.trackingId in currentID) {
+        for (i in appearTime.indices) {
+          if (appearTime[i][0] == face.trackingId) {
+            if (appearTime[i][1] >= 30) {
+              passedFrame = 0
+              faceChanged = true
+
+
+              var decodedImage = encodeImage(croppedImage!!) // Encode Base64 for bitmap
+              // Decode to UTF-8
+              var utf = String(decodedImage!!.toByteArray(), Charset.forName("UTF-8"))
+
+              var new_index = 0
+              for (new_i in 0 until arrayWatchlist.size) {
+                if (arrayWatchlist[new_i].watchlistID  == face.trackingId) {
+                  new_index = new_i
+                }
+              }
+              sendData(utf, new_index)
+            } else passedFrame += 1
+          } else passedFrame +=1
+        }
+      }
+
+       */
+
+
+      if (face.trackingId !in currentID) {
+        if (currentID.size > 30)  currentID.drop(29)
+          currentID.add(0, face.trackingId)
+
+        // arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, "Maus", currentDate))
+        arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, face.trackingId.toString(), currentDate))
+
+
+
+        // Add id and a time show up to appearTime to manage appear time
+        appearTime[index][0] = face.trackingId
+        appearTime[index][1] = 1
+
+        faceChanged = true
 
 
         var decodedImage = encodeImage(croppedImage!!) // Encode Base64 for bitmap
@@ -196,11 +316,28 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
         var utf = String(decodedImage!!.toByteArray(), Charset.forName("UTF-8"))
         sendData(utf, index)
 
+        Log.v(
+                MANUAL_TESTING_LOG,
+                "face Euler Angle X: " + face.headEulerAngleX
+        )
+        Log.v(
+                MANUAL_TESTING_LOG,
+                "face Euler Angle Y: " + face.headEulerAngleY
+        )
+        Log.v(
+                MANUAL_TESTING_LOG,
+                "face Euler Angle Z: " + face.headEulerAngleZ
+        )
+
         index += 1
-        
       }
 
       }
+    if (faceChanged) {
+      adapter?.notifyDataSetChanged()
+      faceChanged = false
+    }
+    // frameNum += 1
   }
 
   fun encodeImage(bm: Bitmap): String? {
@@ -275,21 +412,27 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     })
   }
 
+  private  fun broadcastArrayWatchlistChanged(pos : Int, name : String) {
+    // Re-assign Name
+    // println("WatchLlist: " + arrayWatchlist)
+    arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+    // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+    adapter?.notifyDataSetChanged()
+  }
+
+  private fun insertWatchList(member: Member) {
+    // watchlist.add(member)
+
+
+  }
+
   // Request Image
   private fun sendData(imageCode : String, pos: Int){
     // Init data: field value
-    val mydata = data()
-    mydata.setImageEncoded(imageCode)
-    // mydata.setImageEncoded(Constants.test1Encoded)
-    mydata.setClassId("0")
-    mydata.setModel("0")
-    mydata.setClassifier("0")
+    val mydata = data(imageCode, "0", "0", "")
 
     // Init transmit frame
-    var faceData = FaceData()
-    faceData.setToken(Constants.token)
-    faceData.setData(mydata)
-
+    var faceData = FaceData(Constants.token, mydata)
     var data = imageData.postData(faceData)
 
     //return values
@@ -318,46 +461,35 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
             when {
                 serverCode.toInt() == 1000 -> {
-                  /*
-                  Log.v("MMLab response: ", "Code "+ serverCode
-                          + "\nStatus " + serverStatus + "\nStudent: " + serverData.student_name)
-                   */
+                  Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus" +
+                          "\nStudent: ${serverData.student_name}")
                   name = serverData.student_name
                   Toast.makeText(context, "Name: " + serverData.student_name,
                           Toast.LENGTH_SHORT).show()
+
+                  // Add name to
+                  var newMember = Member(serverData.student_name, serverData.student_id, serverData.image_id)
+
+
                   // Re-assign Name
-                  println("WatchLlist: " + arrayWatchlist)
-                  arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
-                  // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
-                  adapter?.notifyDataSetChanged()
+                  broadcastArrayWatchlistChanged(pos, name)
                 }
                 serverCode.toInt() == 704 -> {
-                  /*
-                  Log.v("MMLab response: ", "Code "+ serverCode
-                            + "\nStatus " + serverStatus + "\nStudent: Unknown")
-                   */
+                  Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus\nStudent: Unknown")
                     Toast.makeText(context, "Name: Unknown",
                             Toast.LENGTH_SHORT).show()
 
+
                   // Re-assign Name
-                  println("WatchLlist: " + arrayWatchlist)
-                  arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
-                  // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
-                  adapter?.notifyDataSetChanged()
+                  broadcastArrayWatchlistChanged(pos, name)
 
                 }
                 else -> {
-                  Log.v("MMLab response: ", "Code "+ serverCode
-                  + "\nStatus " + serverStatus)
+                  Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus")
                   name = "Error!"
-                  Toast.makeText(context, "Code " + serverCode,
+                  Toast.makeText(context, "Code $serverCode",
                           Toast.LENGTH_SHORT).show()
-
-                  // Re-assign Name
-                  println("WatchLlist: " + arrayWatchlist)
-                  arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
-                  // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
-                  adapter?.notifyDataSetChanged()
+                  broadcastArrayWatchlistChanged(pos, name)
 
                 }
             }
@@ -369,10 +501,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                     Toast.LENGTH_SHORT).show()
 
             // Re-assign Name
-            println("WatchLlist: " + arrayWatchlist)
-            arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
-            // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
-            adapter?.notifyDataSetChanged()
+            broadcastArrayWatchlistChanged(pos, name)
           }
         }
       })
@@ -381,15 +510,11 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     {
       name = "Error!"
       Log.v("Retrofit catch", "Fail")
+      Toast.makeText(context, "Retrofit Catch Exception",
+              Toast.LENGTH_SHORT).show()
 
-      // Re-assign Name
-      println("WatchLlist: " + arrayWatchlist)
-      arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
-      // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
-      adapter?.notifyDataSetChanged()
+      broadcastArrayWatchlistChanged(pos, name)
     }
-
-
   }
 
   // Create a crop method that takes a bitmap and Rect

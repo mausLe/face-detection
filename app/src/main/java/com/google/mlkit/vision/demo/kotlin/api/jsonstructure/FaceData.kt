@@ -4,15 +4,16 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 
-class FaceData {
+class FaceData (
     @SerializedName("token")
     @Expose
-    private var token: String? = null
+    private var token: String? = null,
 
     @SerializedName("data")
     @Expose
-    private var data: data? = null
+    private var data: data? = null)
 
+    /*
     // get and set token
     fun getToken (): String? {
         return token
@@ -31,6 +32,26 @@ class FaceData {
 
 }
 
+     */
+
+class data (
+    @SerializedName("image_encoded")
+    @Expose
+    private var image_encoded: String? = null,
+
+    @SerializedName("class_id")
+    @Expose
+    private var class_id: String? = null,
+
+    @SerializedName("model")
+    @Expose
+    private var model: String? = null,
+
+    @SerializedName("classifier")
+    @Expose
+    private var classifier: String? = null)
+
+/*
 class data {
     @SerializedName("image_encoded")
     @Expose
@@ -78,3 +99,5 @@ class data {
         this.classifier = classifier
     }
 }
+
+ */

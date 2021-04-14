@@ -27,8 +27,6 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
 
         }
 
-
-
     }
     override fun getView(position: Int, convertView: View?, p2: ViewGroup?): View {
         var view : View?
@@ -52,7 +50,7 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
                 .load(watchList.imageCode)
                 .into(viewHolder.imageCode)
         // viewHolder.imageCode.setImageResource(watchList.imageCode)
-        viewHolder.watchlistID.text = "No. " + watchList.watchlistID.toString()
+        viewHolder.watchlistID.text = "ID: " + watchList.watchlistID.toString()
         viewHolder.name.text = watchList.name
         viewHolder.time.text = watchList.time.toString()
 
