@@ -182,16 +182,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     // graphicOverlay.clear()
     // Log.v (MANUAL_TESTING_LOG, "Results: " + results.toString())
 
-    /*
-    if (check == false) {
-      check = true
-      arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
-      arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
-      arrayWatchlist.add(WatchList(29, R.drawable.shiba_inu, "Shiba_inu", "March 14, 2021"))
-
-      adapter?.notifyDataSetChanged()
-
-    }*/
     var croppedImage : Bitmap? = originalCameraImage
 
 
@@ -312,8 +302,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
         if (currentID.size > 30)  currentID.drop(29)
           currentID.add(0, face.trackingId)
 
-        // arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, "Maus", currentDate))
-        arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, face.trackingId.toString(), currentDate))
+        arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, face.trackingId.toString(), currentDate, "Other"))
 
 
 
@@ -461,11 +450,14 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     })
   }
 
-  private  fun broadcastArrayWatchlistChanged(pos : Int, name : String) {
+  private  fun broadcastArrayWatchlistChanged(pos : Int, name : String, type : String) {
     // Re-assign Name
     // println("WatchList: " + arrayWatchlist)
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
+    arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
+
     // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
+
     adapter?.notifyDataSetChanged()
   }
 
@@ -502,8 +494,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
             var display = receiveData.toString()
             // serverResponse = serverData.data.student_id
 
-
-
             when {
                 serverCode.toInt() == 1000 -> {
 
@@ -535,7 +525,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   }
 
                   // Re-assign Name
-                  broadcastArrayWatchlistChanged(pos, name)
+                  broadcastArrayWatchlistChanged(pos, name, type)
                 }
                 serverCode.toInt() == 704 -> {
                   Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus\nStudent: Unknown")
@@ -543,7 +533,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                             Toast.LENGTH_SHORT).show()
 
                   // Re-assign Name
-                  broadcastArrayWatchlistChanged(pos, name)
+                  broadcastArrayWatchlistChanged(pos, name, "Other")
 
                 }
                 else -> {
@@ -552,10 +542,12 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   Toast.makeText(context, "Code $serverCode",
                           Toast.LENGTH_SHORT).show()
 
-                  broadcastArrayWatchlistChanged(pos, name)
+                  broadcastArrayWatchlistChanged(pos, name, "Other")
 
                 }
             }
+
+            /*
             // Log.v("Watchlist GSON", memberGson.toString())
             if (index == 5) {
               var json = gson.toJson(watchlist)
@@ -577,32 +569,12 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
             val gsonPretty = GsonBuilder().setPrettyPrinting().create()
             var json = gsonPretty.toJson(memberGson)
-            /*File
 
-            File("/data/app/src/main/java/com/google/mlkit/vision/demo/kotlin/iojson/out.json").writeText(json)
-
-            fileName = "app/src/main/assets/out.json"
-            fileInString = getAssetJsonData(context, fileName)
-            Log.v("Read Json file", fileInString)
-             */
             context.openFileOutput("out.json", Context.MODE_PRIVATE).use {
               it.write(json.toByteArray())
             }
-
-
-            /*
-            try {
-            var lines:List<String> = File(fileName).readLines()
-            lines.forEach {line ->println("line: " + line)}
-            } catch (e : Exception) {
-              Log.v("Read Json file", "Exception error")
-            }
              */
-            /*
-            var fileInString = ReadJsonAsset(fileName)
-            Log.v("Read Json file", fileInString)
 
-             */
           }
           else {
             name = "Error!"
@@ -611,9 +583,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                     Toast.LENGTH_SHORT).show()
 
             // Re-assign Name
-            broadcastArrayWatchlistChanged(pos, name)
-
-
+            broadcastArrayWatchlistChanged(pos, name, "Other")
           }
         }
       })
@@ -625,7 +595,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       Toast.makeText(context, "Retrofit Catch Exception",
               Toast.LENGTH_SHORT).show()
 
-      broadcastArrayWatchlistChanged(pos, name)
+      broadcastArrayWatchlistChanged(pos, name,"Other")
     }
 
 

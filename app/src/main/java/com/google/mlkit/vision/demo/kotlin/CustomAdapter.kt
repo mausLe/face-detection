@@ -1,12 +1,14 @@
 package com.google.mlkit.vision.demo.kotlin
 
 import android.content.Context
+import android.graphics.Color
 import android.media.Image
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.google.mlkit.vision.demo.R
@@ -17,6 +19,7 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
         var imageCode: ImageView
         var name : TextView
         var time : TextView
+        var borderColor : LinearLayout
 
         // Gán giá trị ánh
         init {
@@ -24,7 +27,7 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
             imageCode = row.findViewById(R.id.imageCode) as ImageView
             name = row.findViewById(R.id.name) as TextView
             time = row.findViewById(R.id.time) as TextView
-
+            borderColor = row.findViewById(R.id.borderLayout) as LinearLayout
         }
 
     }
@@ -54,8 +57,13 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
         viewHolder.name.text = watchList.name
         viewHolder.time.text = watchList.time.toString()
 
-        return view as View
+        if (watchList.type == "Teacher") {
+            viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#cc0000"))
+        } else if (watchList.type == "Student") {
+            viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#009933"))
+        }
 
+        return view as View
     }
 
     override fun getItem(position: Int): Any {
@@ -69,5 +77,4 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
     override fun getCount(): Int {
         return watchlist.size
     }
-
 }

@@ -47,6 +47,7 @@ import java.util.ArrayList
 var detectedImage: ImageView? = null
 var arrayWatchlist : ArrayList<WatchList> = ArrayList()
 var adapter : CustomAdapter? = null
+// var borderLayout : LinearLayout? = null
 
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
@@ -94,6 +95,9 @@ class LivePreviewActivity :
 
     adapter = CustomAdapter(this@LivePreviewActivity, arrayWatchlist)
     listView.setAdapter(adapter)
+
+    // Change LinearLayout border
+    // borderLayout = findViewById<LinearLayout>(R.id.borderLayout)
 
     /*
     val myListAdapter = MyListAdapter(this, imageID, name, id)
@@ -302,8 +306,10 @@ class LivePreviewActivity :
       }
 
       Log.v("Watchlist", json)
+      /*
       Toast.makeText(this, "Wlist" +
               watchlist[watchlist.size - 1].getName(), Toast.LENGTH_SHORT).show()
+       */
     } catch (e : Exception)
     {
       // do nothing
