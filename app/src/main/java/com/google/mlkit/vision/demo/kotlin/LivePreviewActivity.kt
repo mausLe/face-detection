@@ -28,12 +28,14 @@ import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.annotation.KeepName
+import com.google.gson.GsonBuilder
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
 import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.facedetector.FaceDetectorProcessor
+import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
 import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
@@ -289,6 +291,24 @@ class LivePreviewActivity :
   }
 
   public override fun onDestroy() {
+    try {
+      // Write the watchlist out
+      // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
+
+      val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+      var json = gsonPretty.toJson(watchlist)
+      this.openFileOutput("watchlist.json", Context.MODE_PRIVATE).use {
+        it.write(json.toByteArray())
+      }
+
+      Log.v("Watchlist", json)
+      Toast.makeText(this, "Wlist" +
+              watchlist[watchlist.size - 1].getName(), Toast.LENGTH_SHORT).show()
+    } catch (e : Exception)
+    {
+      // do nothing
+    }
+
     super.onDestroy()
     if (cameraSource != null) {
       cameraSource?.release()

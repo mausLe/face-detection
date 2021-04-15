@@ -49,9 +49,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.ByteArrayOutputStream
-import java.io.FileNotFoundException
-import java.io.FileReader
+import java.io.*
 import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
@@ -60,6 +58,7 @@ import kotlin.collections.ArrayList
 var index = 0
 var passedFrame = 0
 var maxHuman = 30
+var watchlist = ArrayList<Watchlist>()
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -103,7 +102,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private var appearTime : Array<IntArray> = Array(1000) {IntArray(2) {0} }
 
   var gson : Gson = Gson()
-  var watchlist = ArrayList<Watchlist>()
+
 
   init {
     val options = detectorOptions
@@ -115,6 +114,19 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     detector = FaceDetection.getClient(options)
 
     Log.v(MANUAL_TESTING_LOG, "Face detector options: $options")
+
+    // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
+    val file = File(context.filesDir, "watchlist.json")
+    var json = ""
+    try {
+      json = getJsonData(context, file.toString())
+      if (json == "[]") {
+        json = getAssetJsonData(context, "watchlist.json")
+      }
+    } catch (e : Exception) {
+      json = getAssetJsonData(context, "watchlist.json")
+    }
+    watchlist = gson.fromJson(json, Array<Watchlist>::class.java).toList() as ArrayList<Watchlist>
 
     // Init appearTime to skip the first 4 times of every human
     // and record a 5th time
@@ -352,6 +364,44 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     Log.e(TAG, "Face detection failed $e")
   }
 
+
+  //Load JSON file from Assets folder.
+  fun getAssetJsonData(context: Context, fileName : String): String {
+    val json: String
+    try {
+      val inputStream = context.getAssets().open(fileName)
+      val size = inputStream.available()
+      val buffer = ByteArray(size)
+      inputStream.use { it.read(buffer) }
+      json = String(buffer)
+    } catch (ioException: IOException) {
+      ioException.printStackTrace()
+      return ""
+    }
+    // print the data
+    Log.i("data", json)
+    return json
+  }
+
+  //Load JSON file from Assets folder.
+  fun getJsonData(context: Context, filePath : String): String {
+    val json: String
+    try {
+      val inputStream = FileInputStream(filePath)
+      val size = inputStream.available()
+      val buffer = ByteArray(size)
+      inputStream.use { it.read(buffer) }
+      json = String(buffer)
+    } catch (ioException: IOException) {
+      ioException.printStackTrace()
+      return ""
+    }
+    // print the data
+    Log.i("data", json)
+    return json
+  }
+
+
   private fun login() {
     var login = Login(Constants.user_name, Constants.password)
     var call = userClient.login(login)
@@ -382,8 +432,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   }
 
   private var token : String = "Token is Null"
-
-  // private lateinit var serverResponse : DataX
 
   private fun getSecret() {
     var call = userClient.getSecret(token)
@@ -472,11 +520,20 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                     else -> "Other"
                   }
                   if (serverData.student_id == "17520237") type = "Teacher" // Teacher will be marked as red
-                  watchlist.add(Watchlist(serverData.student_id, serverData.student_name, serverData.image_id, type))
 
 
+                  // Check if that's person is on blacklist
+                  var foundMember = false
+                  for (i in 0 until watchlist.size) {
+                    if (watchlist[i].getId() == serverData.student_id) {
+                      foundMember = true
+                      break
+                    }
+                  }
+                  if (!foundMember) {
+                    watchlist.add(Watchlist(serverData.student_id, serverData.student_name, serverData.image_id, type))
+                  }
 
-                  var a = 1 + 2
                   // Re-assign Name
                   broadcastArrayWatchlistChanged(pos, name)
                 }
@@ -511,6 +568,41 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
             // var memberGson = gson.fromJson(json, Array<Watchlist>::class.java).toList()
             // Log.v("Watchlist GSON", memberGson.toString())
 
+            var fileName = "watchlist.json"
+            var fileInString = getAssetJsonData(context, fileName)
+            Log.v("Read Json file", fileInString)
+
+            var memberGson = gson.fromJson(fileInString, Array<Watchlist>::class.java).toList()
+            Log.v("Watchlist GSON", memberGson.toString())
+
+            val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+            var json = gsonPretty.toJson(memberGson)
+            /*File
+
+            File("/data/app/src/main/java/com/google/mlkit/vision/demo/kotlin/iojson/out.json").writeText(json)
+
+            fileName = "app/src/main/assets/out.json"
+            fileInString = getAssetJsonData(context, fileName)
+            Log.v("Read Json file", fileInString)
+             */
+            context.openFileOutput("out.json", Context.MODE_PRIVATE).use {
+              it.write(json.toByteArray())
+            }
+
+
+            /*
+            try {
+            var lines:List<String> = File(fileName).readLines()
+            lines.forEach {line ->println("line: " + line)}
+            } catch (e : Exception) {
+              Log.v("Read Json file", "Exception error")
+            }
+             */
+            /*
+            var fileInString = ReadJsonAsset(fileName)
+            Log.v("Read Json file", fileInString)
+
+             */
           }
           else {
             name = "Error!"
@@ -520,6 +612,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
             // Re-assign Name
             broadcastArrayWatchlistChanged(pos, name)
+
+
           }
         }
       })
