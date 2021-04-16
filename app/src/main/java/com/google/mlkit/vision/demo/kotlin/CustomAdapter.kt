@@ -61,6 +61,9 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
             viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#cc0000"))
         } else if (watchList.type == "Student") {
             viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#009933"))
+        } else {
+            viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#00001a"))
+
         }
 
         return view as View

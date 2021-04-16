@@ -16,12 +16,23 @@
 
 package com.google.mlkit.vision.demo.kotlin.facedetector
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.os.Build
+import android.os.Bundle
 import android.util.Base64
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.Window
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import api.ServerData
@@ -54,6 +65,7 @@ import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import com.google.mlkit.vision.demo.R
 
 var index = 0
 var passedFrame = 0
@@ -102,6 +114,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private var appearTime : Array<IntArray> = Array(1000) {IntArray(2) {0} }
 
   var gson : Gson = Gson()
+
+  private var editTextView: TextView? = null
+  private var editImageView: ImageView? = null
+  private  var isShowDialog = false
 
 
   init {
@@ -450,16 +466,51 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     })
   }
 
-  private  fun broadcastArrayWatchlistChanged(pos : Int, name : String, type : String) {
+  private  fun broadcastArrayWatchlistChanged(pos : Int, name : String, type : String, student_id: String) {
     // Re-assign Name
     // println("WatchList: " + arrayWatchlist)
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
 
+    if (type == "Teacher" && !isShowDialog) showDialog("ABC")
+
+
+    if (student_id != "Unknown") {
+      arrayWatchlist[arrayWatchlist.size - pos - 1].watchlistID = student_id.toInt()
+    }
+
     // add(0, WatchList(index, croppedImage, face.trackingId.toString(), currentDate))
 
     adapter?.notifyDataSetChanged()
   }
+
+  // Pop up Notification dialog
+  @SuppressLint("WrongViewCast")
+  private fun showDialog(title: String) {
+    val dialog = Dialog(context)
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+    dialog.setCancelable(false)
+    dialog.setContentView(R.layout.layout_dialog)
+    val warningContext = dialog.findViewById(R.id.notfContext) as TextView
+    warningContext.text = "Hey! I found someone that might be in your blacklist. Take a look!"
+
+    val yesBtn = dialog.findViewById(R.id.notfLearnMore) as Button
+    val noBtn = dialog.findViewById(R.id.notfDismiss) as Button
+    val warningImage = dialog.findViewById(R.id.notfWarning) as ImageView
+    warningImage.setImageResource(R.drawable.shiba_inu)
+
+    yesBtn.setOnClickListener {
+      isShowDialog = false
+      dialog.dismiss()
+    }
+    noBtn.setOnClickListener {
+      isShowDialog = false
+      dialog.dismiss() }
+    dialog.show()
+    isShowDialog = true
+
+  }
+
 
   // Request Image
   private fun sendData(imageCode : String, pos: Int){
@@ -525,7 +576,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   }
 
                   // Re-assign Name
-                  broadcastArrayWatchlistChanged(pos, name, type)
+                  broadcastArrayWatchlistChanged(pos, name, type, serverData.student_id)
                 }
                 serverCode.toInt() == 704 -> {
                   Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus\nStudent: Unknown")
@@ -533,7 +584,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                             Toast.LENGTH_SHORT).show()
 
                   // Re-assign Name
-                  broadcastArrayWatchlistChanged(pos, name, "Other")
+                  broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
 
                 }
                 else -> {
@@ -542,7 +593,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   Toast.makeText(context, "Code $serverCode",
                           Toast.LENGTH_SHORT).show()
 
-                  broadcastArrayWatchlistChanged(pos, name, "Other")
+                  broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
 
                 }
             }
@@ -583,7 +634,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                     Toast.LENGTH_SHORT).show()
 
             // Re-assign Name
-            broadcastArrayWatchlistChanged(pos, name, "Other")
+            broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
           }
         }
       })
@@ -595,7 +646,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       Toast.makeText(context, "Retrofit Catch Exception",
               Toast.LENGTH_SHORT).show()
 
-      broadcastArrayWatchlistChanged(pos, name,"Other")
+      broadcastArrayWatchlistChanged(pos, name,"Other", "Unknown")
     }
 
 

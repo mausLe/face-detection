@@ -131,6 +131,9 @@ class LivePreviewActivity :
     options.add(CUSTOM_AUTOML_OBJECT_DETECTION)
     options.add(FACE_DETECTION)
 
+    // Custom Dialog
+
+
     // Creating adapter for spinner
     val dataAdapter =
       ArrayAdapter(this, R.layout.spinner_style, options)

@@ -3,45 +3,44 @@
     android:layout_width="220dp"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:id="@+id/borderLayout"    >
+    android:id="@+id/borderLayout">
 
     <ImageView
         android:id="@+id/imageCode"
         android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:padding="5dp" />
+        android:layout_height="100dp"/>
 
-    <LinearLayout android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/watchlistID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="0dp"
             android:text="Blacklist ID"
-            android:textStyle="bold"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:padding="2dp"
-            android:textColor="#4d4d4d" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#ffffff"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
             android:text="Name"
-            android:textStyle="bold"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:padding="2dp"
-            android:textColor="#4d4d4d" />
+            android:textColor="#ffffff"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="time"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="2dp"
+            android:text="time" />
     </LinearLayout>
 </LinearLayout>

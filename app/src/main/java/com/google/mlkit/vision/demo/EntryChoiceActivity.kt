@@ -16,8 +16,12 @@
 
 package com.google.mlkit.vision.demo
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.Window
+import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.google.mlkit.vision.demo.kotlin.ChooserActivity
@@ -34,6 +38,8 @@ class EntryChoiceActivity : AppCompatActivity() {
       startActivity(intent)
     }*/
 
+    // showDialog("ABC")
+
     findViewById<TextView>(R.id.kotlin_entry_point).setOnClickListener {
       val intent =
               Intent(
@@ -43,4 +49,6 @@ class EntryChoiceActivity : AppCompatActivity() {
       startActivity(intent)
     }
   }
+
+
 }
