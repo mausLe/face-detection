@@ -16,19 +16,14 @@
 
 package com.google.mlkit.vision.demo.kotlin.facedetector
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.os.Build
-import android.os.Bundle
 import android.util.Base64
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.ImageView
@@ -41,6 +36,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
+import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
 import com.google.mlkit.vision.demo.kotlin.WatchList
 import com.google.mlkit.vision.demo.kotlin.adapter
@@ -65,7 +61,6 @@ import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import com.google.mlkit.vision.demo.R
 
 var index = 0
 var passedFrame = 0
@@ -181,7 +176,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     return detector.process(image)
   }
 
-  // override fun onSuccess(results: List<Face>, graphicOverlay: GraphicOverlay) {
   @RequiresApi(Build.VERSION_CODES.KITKAT)
   override fun onSuccess(originalCameraImage: Bitmap?, results: List<Face>, graphicOverlay: GraphicOverlay) {
     // currentBitmap is our originalCameraImage
@@ -204,7 +198,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
     val currentDate = sdf.format(Date())
     var faceChanged: Boolean = false
-
 
     for (face in results) {
       // Log.v (MANUAL_TESTING_LOG, "face: " + face.toString())
@@ -286,7 +279,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
        */
 
       /*
-
       if (face.trackingId in currentID) {
         for (i in appearTime.indices) {
           if (appearTime[i][0] == face.trackingId) {
@@ -472,8 +464,11 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
 
-    if (type == "Teacher" && !isShowDialog) showDialog("ABC")
-
+    if (type == "Teacher" && !isShowDialog) {
+      isShowDialog = true
+      // showSthg()
+      showDialog("ABC")
+    }
 
     if (student_id != "Unknown") {
       arrayWatchlist[arrayWatchlist.size - pos - 1].watchlistID = student_id.toInt()
@@ -484,8 +479,28 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     adapter?.notifyDataSetChanged()
   }
 
+  private fun showSthg() {
+    val builder1 = AlertDialog.Builder(context)
+    builder1.setMessage("Write your message here.")
+    builder1.setCancelable(true)
+
+    builder1.setPositiveButton(
+            "Yes"
+    ) { dialog, id -> dialog.cancel()
+      isShowDialog = false
+    }
+
+    builder1.setNegativeButton(
+            "No"
+    ) { dialog, id -> dialog.cancel()
+      isShowDialog = false
+    }
+
+    val alert11 = builder1.create()
+    alert11.show()
+  }
+
   // Pop up Notification dialog
-  @SuppressLint("WrongViewCast")
   private fun showDialog(title: String) {
     val dialog = Dialog(context)
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -507,10 +522,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       isShowDialog = false
       dialog.dismiss() }
     dialog.show()
-    isShowDialog = true
 
   }
-
 
   // Request Image
   private fun sendData(imageCode : String, pos: Int){
