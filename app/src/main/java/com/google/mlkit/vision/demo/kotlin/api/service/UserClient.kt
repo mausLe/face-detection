@@ -3,6 +3,7 @@ package com.google.mlkit.vision.demo.kotlin.api.service
 import api.ServerData
 import api.data
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceData
+import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceRegisterData
 import com.google.mlkit.vision.demo.kotlin.api.model.Login
 import com.google.mlkit.vision.demo.kotlin.api.model.User
 import okhttp3.ResponseBody
@@ -23,6 +24,8 @@ interface  ImageData {
     @POST("search_face/post/")
     open fun postData(@Body faceData: FaceData?): Call<ServerData?>?
 
+    @POST("register/post/")
+    open fun registerFaces(@Body faceData: FaceRegisterData?): Call<ServerData?>?
 
 
     // this one works but server returns wrong input

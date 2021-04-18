@@ -22,25 +22,18 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import android.view.View
 import android.widget.*
-import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.annotation.KeepName
-import com.google.gson.GsonBuilder
-import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
 import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
-import com.google.mlkit.vision.demo.kotlin.facedetector.FaceDetectorProcessor
-import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
-import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
+import com.google.mlkit.vision.demo.kotlin.faceregister.FaceAdderProcessor
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
-import kotlinx.android.synthetic.main.activity_vision_live_preview.*
 import java.io.IOException
 import java.util.ArrayList
 
@@ -50,23 +43,12 @@ import java.util.ArrayList
 class AddFaceActivity:
         AppCompatActivity(),
         ActivityCompat.OnRequestPermissionsResultCallback,
-        OnItemSelectedListener,
         CompoundButton.OnCheckedChangeListener {
-
-    //val detectedImage: ImageView = findViewById<ImageView>(R.id.detected_face)
 
     private var cameraSource: CameraSource? = null
     private var preview: CameraSourcePreview? = null
     private var graphicOverlay: GraphicOverlay? = null
-    private var selectedModel = OBJECT_DETECTION
-
-    //Listview
-
-
-    // private var imageID = arrayOf<Int>(R.drawable.shiba_inu)
-    // private var name = arrayOf<String>("shiba_inu")
-    // private var id = arrayOf<Int>(23)
-
+    private var selectedModel = FACE_DETECTION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,59 +65,8 @@ class AddFaceActivity:
             Log.d(TAG, "graphicOverlay is null")
         }
 
-        // ListView
-        // var watchlistID: Int, var imageCode: Int,
-        // var name: String, var time: Text
-        // arrayWatchlist.add(WatchList(23, R.drawable.shiba_inu, "Shiba_inu", "April 7, 2021"))
-        // arrayWatchlist.add(WatchList(27, R.drawable.shibaaa, "Shibaaaa", "Feb 14, 2021"))
-
-        // Change LinearLayout border
-        // borderLayout = findViewById<LinearLayout>(R.id.borderLayout)
-
-        /*
-        val myListAdapter = MyListAdapter(this, imageID, name, id)
-        listView.adapter = myListAdapter
-
-        imageID = imageID + R.drawable.shibaaa
-        name += "Shiba"
-        id += id
-
-         */
-
-        // adapter.
-
-        // var list = findViewById<ListView>(R.id.listView)
-
-
-        // add Detected Image
-
-        //val detectedImage = findViewById<ImageView>(R.id.detected_face)
         detectedImage = findViewById<ImageView>(R.id.detected_face)
-        /*
-        Glide.with(this)
-          .load(R.drawable.shiba_inu)
-          .into(detectedImage)
-        */
 
-        val spinner = findViewById<Spinner>(R.id.spinner)
-        val options: MutableList<String> = ArrayList()
-        options.add(OBJECT_DETECTION)
-        options.add(OBJECT_DETECTION_CUSTOM)
-        options.add(CUSTOM_AUTOML_OBJECT_DETECTION)
-        options.add(FACE_DETECTION)
-
-        // Custom Dialog
-
-
-        // Creating adapter for spinner
-        val dataAdapter =
-                ArrayAdapter(this, R.layout.spinner_style, options)
-
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        // attaching data adapter to spinner
-        spinner.adapter = dataAdapter
-        spinner.onItemSelectedListener = this
 
         val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
         facingSwitch.setOnCheckedChangeListener(this)
@@ -152,30 +83,6 @@ class AddFaceActivity:
         } else {
             runtimePermissions
         }
-    }
-
-    @Synchronized
-    override fun onItemSelected(
-            parent: AdapterView<*>?,
-            view: View?,
-            pos: Int,
-            id: Long
-    ) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-        selectedModel = parent?.getItemAtPosition(pos).toString()
-        Log.d(TAG, "Selected model: $selectedModel")
-        preview?.stop()
-        if (allPermissionsGranted()) {
-            createCameraSource(selectedModel)
-            startCameraSource()
-        } else {
-            runtimePermissions
-        }
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        // Do nothing.
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
@@ -198,51 +105,14 @@ class AddFaceActivity:
         }
         try {
             when (model) {
-                OBJECT_DETECTION -> {
-                    Log.i(TAG, "Using Object Detector Processor")
-                    val objectDetectorOptions =
-                            PreferenceUtils.getObjectDetectorOptionsForLivePreview(this)
-                    cameraSource!!.setMachineLearningFrameProcessor(
-                            ObjectDetectorProcessor(this, objectDetectorOptions)
-                    )
-                }
                 FACE_DETECTION -> {
                     Log.i(TAG, "Using Face Detector Processor")
                     val faceDetectorOptions =
                             PreferenceUtils.getFaceDetectorOptionsForLivePreview(this)
                     cameraSource!!.setMachineLearningFrameProcessor(
-                            FaceDetectorProcessor(this, faceDetectorOptions)
+                            FaceAdderProcessor(this, faceDetectorOptions)
                     )
                 }
-                OBJECT_DETECTION_CUSTOM -> {
-                    Log.i(
-                            TAG,
-                            "Using Custom Object Detector Processor"
-                    )
-                    val localModel = LocalModel.Builder()
-                            .setAssetFilePath("custom_models/bird_classifier.tflite")
-                            .build()
-                    val customObjectDetectorOptions =
-                            PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, localModel)
-                    cameraSource!!.setMachineLearningFrameProcessor(
-                            ObjectDetectorProcessor(this, customObjectDetectorOptions)
-                    )
-                }
-                CUSTOM_AUTOML_OBJECT_DETECTION -> {
-                    Log.i(
-                            TAG,
-                            "Using Custom AutoML Object Detector Processor"
-                    )
-                    val customAutoMLODTLocalModel = LocalModel.Builder()
-                            .setAssetManifestFilePath("automl/manifest.json")
-                            .build()
-                    val customAutoMLODTOptions = PreferenceUtils
-                            .getCustomObjectDetectorOptionsForLivePreview(this, customAutoMLODTLocalModel)
-                    cameraSource!!.setMachineLearningFrameProcessor(
-                            ObjectDetectorProcessor(this, customAutoMLODTOptions)
-                    )
-                }
-
                 else -> Log.e(TAG, "Unknown model: $model")
             }
         } catch (e: Exception) {
@@ -291,26 +161,6 @@ class AddFaceActivity:
     }
 
     public override fun onDestroy() {
-        try {
-            // Write the watchlist out
-            // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
-
-            val gsonPretty = GsonBuilder().setPrettyPrinting().create()
-            var json = gsonPretty.toJson(watchlist)
-            this.openFileOutput("watchlist.json", Context.MODE_PRIVATE).use {
-                it.write(json.toByteArray())
-            }
-
-            Log.v("Watchlist", json)
-            /*
-            Toast.makeText(this, "Wlist" +
-                    watchlist[watchlist.size - 1].getName(), Toast.LENGTH_SHORT).show()
-             */
-        } catch (e : Exception)
-        {
-            // do nothing
-        }
-
         super.onDestroy()
         if (cameraSource != null) {
             cameraSource?.release()
@@ -372,17 +222,7 @@ class AddFaceActivity:
 
 
     companion object {
-        private const val OBJECT_DETECTION = "Object Detection"
-        private const val OBJECT_DETECTION_CUSTOM = "Custom Object Detection (Birds)"
-        private const val CUSTOM_AUTOML_OBJECT_DETECTION = "Custom AutoML Object Detection (Flower)"
         private const val FACE_DETECTION = "Face Detection"
-        private const val TEXT_RECOGNITION = "Text Recognition"
-        private const val BARCODE_SCANNING = "Barcode Scanning"
-        private const val IMAGE_LABELING = "Image Labeling"
-        private const val IMAGE_LABELING_CUSTOM = "Custom Image Labeling (Birds)"
-        private const val CUSTOM_AUTOML_LABELING = "Custom AutoML Image Labeling (Flower)"
-        private const val POSE_DETECTION = "Pose Detection"
-        private const val SELFIE_SEGMENTATION = "Selfie Segmentation"
 
         private const val TAG = "LivePreviewActivity"
         private const val PERMISSION_REQUESTS = 1

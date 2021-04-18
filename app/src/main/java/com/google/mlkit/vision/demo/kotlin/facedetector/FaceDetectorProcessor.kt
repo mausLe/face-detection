@@ -154,7 +154,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
           .addConverterFactory(GsonConverterFactory.create())
 
   var retrofit = builder.build()
-  var userClient = retrofit.create(UserClient::class.java)
+  // var userClient = retrofit.create(UserClient::class.java)
 
   var imageData = retrofit.create(ImageData::class.java)
 
@@ -398,7 +398,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     return json
   }
 
-
+  /*
   private fun login() {
     var login = Login(Constants.user_name, Constants.password)
     var call = userClient.login(login)
@@ -427,9 +427,11 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       }
     })
   }
+   */
 
   private var token : String = "Token is Null"
 
+  /*
   private fun getSecret() {
     var call = userClient.getSecret(token)
 
@@ -457,6 +459,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       }
     })
   }
+   */
 
   private  fun broadcastArrayWatchlistChanged(pos : Int, name : String, type : String, student_id: String) {
     // Re-assign Name
@@ -464,7 +467,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
 
-    if (type == "Teacher" && !isShowDialog) {
+    if (type == "Other" && !isShowDialog) {
       isShowDialog = true
       // showSthg()
       showDialog("ABC")
@@ -521,8 +524,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     noBtn.setOnClickListener {
       isShowDialog = false
       dialog.dismiss() }
-    dialog.show()
 
+    dialog.show()
   }
 
   // Request Image
@@ -538,6 +541,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     var name = "Unknown"
     var id = "Unknown"
 
+    // broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
     try {
       data!!.enqueue(object : Callback<ServerData?>{
         override fun onFailure(call: Call<ServerData?>, t: Throwable) {
@@ -661,6 +665,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
       broadcastArrayWatchlistChanged(pos, name,"Other", "Unknown")
     }
+
 
 
   }
