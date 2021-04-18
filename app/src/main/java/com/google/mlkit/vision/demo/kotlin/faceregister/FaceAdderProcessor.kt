@@ -1,12 +1,14 @@
 package com.google.mlkit.vision.demo.kotlin.faceregister
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.startActivity
 import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
@@ -21,6 +23,7 @@ import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
 import com.google.mlkit.vision.demo.kotlin.facedetector.FaceGraphic
 import com.google.mlkit.vision.demo.kotlin.facedetector.index
 import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
+import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.face.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -186,17 +189,30 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
                     && -5 < face.headEulerAngleY && face.headEulerAngleY  < 5
                     && -5 < face.headEulerAngleX && face.headEulerAngleX  < 10) {
                 frontFace = croppedImage
+                Toast.makeText(context, "Add FrontalFace", Toast.LENGTH_LONG).show()
 
             } else if (leftFace == null
-                    && 13 < face.headEulerAngleY && face.headEulerAngleY  < 40
-                    && -15 < face.headEulerAngleX && face.headEulerAngleX  < -7) {
+                    && -40 < face.headEulerAngleY && face.headEulerAngleY  < -7) {
                 leftFace = croppedImage
+                Toast.makeText(context, "Add LeftFace", Toast.LENGTH_LONG).show()
 
             } else if (rightFace == null
-                    && -40 < face.headEulerAngleY && face.headEulerAngleY  < -13
-                    && 7 < face.headEulerAngleX && face.headEulerAngleX  < 15) {
+                    && 7 < face.headEulerAngleY && face.headEulerAngleY  < 40) {
                 rightFace = croppedImage
+                Toast.makeText(context, "Add RightFace", Toast.LENGTH_LONG).show()
             }
+            Log.v(
+                    MANUAL_TESTING_LOG,
+                    "face Euler Angle X: " + face.headEulerAngleX
+            )
+            Log.v(
+                    MANUAL_TESTING_LOG,
+                    "face Euler Angle Y: " + face.headEulerAngleY
+            )
+            Log.v(
+                    MANUAL_TESTING_LOG,
+                    "face Euler Angle Z: " + face.headEulerAngleZ
+            )
 
             // if record 3 face, then display these
             if (frontFace != null
@@ -219,6 +235,18 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
 
                 // registerFace(encodedFace)
 
+                val intent = Intent(context, FormRegister::class.java)
+                var stream = ByteArrayOutputStream()
+                frontFace!!.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                var byteArray = stream.toByteArray()
+
+                intent.putExtra("frontal UTF", byteArray)
+
+                intent.putExtra("left UTF", leftUTF)
+                intent.putExtra("right UTF", rightUTF)
+
+                context.startActivity(intent)
+
             }
             /*
 
@@ -239,10 +267,6 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
 
              */
 
-        }
-        if (faceChanged) {
-            adapter?.notifyDataSetChanged()
-            faceChanged = false
         }
         // frameNum += 1
     }

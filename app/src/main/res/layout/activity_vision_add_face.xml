@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/imageFaceRegister"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        tools:ignore="MissingConstraints" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:text="FORM REGISTER"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/nameFaceRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:hint="Full Name"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/idFaceRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:hint="ID: E.g: "
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+
+
+    <EditText
+        android:id="@+id/typeFaceRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:hint="Type"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+
+</LinearLayout>

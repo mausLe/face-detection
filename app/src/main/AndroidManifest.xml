@@ -85,6 +85,10 @@
             android:name=".preference.SettingsActivity"
             android:exported="false"/>
 
+        <activity
+            android:name=".kotlin.faceregister.FormRegister"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
