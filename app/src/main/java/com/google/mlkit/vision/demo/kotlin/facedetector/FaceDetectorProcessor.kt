@@ -16,9 +16,13 @@
 
 package com.google.mlkit.vision.demo.kotlin.facedetector
 
+import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Context.ALARM_SERVICE
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.os.Build
@@ -30,6 +34,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getSystemService
 import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
@@ -37,20 +42,13 @@ import com.google.gson.GsonBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
-import com.google.mlkit.vision.demo.kotlin.VisionProcessorBase
-import com.google.mlkit.vision.demo.kotlin.WatchList
-import com.google.mlkit.vision.demo.kotlin.adapter
+import com.google.mlkit.vision.demo.kotlin.*
 import com.google.mlkit.vision.demo.kotlin.api.Constants
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceData
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.data
-import com.google.mlkit.vision.demo.kotlin.api.model.Login
-import com.google.mlkit.vision.demo.kotlin.api.model.User
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
-import com.google.mlkit.vision.demo.kotlin.api.service.UserClient
-import com.google.mlkit.vision.demo.kotlin.arrayWatchlist
 import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
 import com.google.mlkit.vision.face.*
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -217,7 +215,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // 12 degrees to 36 degrees
       // ---> right mouth, nose base, bottom mouth, left eye, right eye, right cheek, right ear tip
 
-      if (face.headEulerAngleY > 36 || face.headEulerAngleY < -36) continue
+      if (face.headEulerAngleY > 45 || face.headEulerAngleY < -45) continue
 
       // Facing upward
       if (face.headEulerAngleX > 20 || face.headEulerAngleY < -15) continue
@@ -245,7 +243,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
       try {
         // Try to increase h to 0.7*originalCameraImage!!.height
-        if (w > 50 && h > 50 && h/w >= 0.3 && w/h >= 0.3) {
+        if (h > 70 && h > 0.1*originalCameraImage.height
+                && h/w >= 0.3 && w/h >= 0.3) {
           croppedImage = cropBitmap(originalCameraImage!!, leftcoord, topcoord, w, h)
         }
         else continue
@@ -467,10 +466,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
 
-    if (type == "Other" && !isShowDialog) {
+    if (type == "Teacher" && !isShowDialog) {
       isShowDialog = true
       // showSthg()
-      showDialog("ABC")
+      //showDialog("ABC")
     }
 
     if (student_id != "Unknown") {
@@ -503,8 +502,24 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     alert11.show()
   }
 
+  fun startAlert(time: Int) {
+    val i: Int = time
+    val intent = Intent(context, MyBroadcastReceiver::class.java)
+
+    var dia = showDialog("abc")
+
+    val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
+            context, 234324243, intent, 0)
+    val alarmManager: AlarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
+    alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
+            + i * 1000, pendingIntent)
+
+
+    // Toast.makeText(context, "Alarm set in $i seconds", Toast.LENGTH_LONG).show()
+  }
+
   // Pop up Notification dialog
-  private fun showDialog(title: String) {
+  private fun showDialog(title: String): Dialog {
     val dialog = Dialog(context)
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
     dialog.setCancelable(false)
@@ -526,6 +541,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       dialog.dismiss() }
 
     dialog.show()
+
+    return dialog
   }
 
   // Request Image

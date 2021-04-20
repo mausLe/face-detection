@@ -1,5 +1,6 @@
 package com.google.mlkit.vision.demo.kotlin.api.service
 
+import api.FaceRegServerData
 import api.ServerData
 import api.data
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceData
@@ -25,7 +26,7 @@ interface  ImageData {
     open fun postData(@Body faceData: FaceData?): Call<ServerData?>?
 
     @POST("register/post/")
-    open fun registerFaces(@Body faceData: FaceRegisterData?): Call<ServerData?>?
+    open fun registerFaces(@Body faceData: FaceRegisterData?): Call<FaceRegServerData?>?
 
 
     // this one works but server returns wrong input

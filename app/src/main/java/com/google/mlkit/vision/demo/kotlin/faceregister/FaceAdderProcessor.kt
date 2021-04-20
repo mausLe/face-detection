@@ -219,31 +219,20 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
                     && leftFace != null
                     && rightFace != null) {
 
-                var frontImage = encodeImage(frontFace!!) // Encode Base64 for bitmap
-                // Decode to UTF-8
-                var frontUTF = String(frontImage!!.toByteArray(), Charset.forName("UTF-8"))
 
-                var leftImage = encodeImage(leftFace!!) // Encode Base64 for leftp
-                // Decode to UTF-8
-                var leftUTF = String(leftImage!!.toByteArray(), Charset.forName("UTF-8"))
-
-                var rightImage = encodeImage(rightFace!!) // Encode Base64 for bitmap
-                // Decode to UTF-8
-                var rightUTF = String(rightImage!!.toByteArray(), Charset.forName("UTF-8"))
-
-                var encodedFace = ImageEncoder(frontImage, leftImage, rightImage)
 
                 // registerFace(encodedFace)
 
                 val intent = Intent(context, FormRegister::class.java)
-                var stream = ByteArrayOutputStream()
-                frontFace!!.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                var byteArray = stream.toByteArray()
 
-                intent.putExtra("frontal UTF", byteArray)
+                var frontalByteArray = convertBitmap2ByteArray(frontFace!!)
+                intent.putExtra("frontal face", frontalByteArray)
 
-                intent.putExtra("left UTF", leftUTF)
-                intent.putExtra("right UTF", rightUTF)
+                var leftByteArray = convertBitmap2ByteArray(leftFace!!)
+                intent.putExtra("left face", leftByteArray)
+
+                var rightByteArray = convertBitmap2ByteArray(rightFace!!)
+                intent.putExtra("right face", rightByteArray)
 
                 context.startActivity(intent)
 
@@ -271,13 +260,14 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
         // frameNum += 1
     }
 
-
-    fun encodeImage(bm: Bitmap): String? {
-        val baos = ByteArrayOutputStream()
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val b = baos.toByteArray()
-        return Base64.encodeToString(b, Base64.DEFAULT)
+    private fun convertBitmap2ByteArray(face : Bitmap): ByteArray {
+        var stream = ByteArrayOutputStream()
+        face.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        return stream.toByteArray()
     }
+
+
+
 
     override fun onFailure(e: Exception) {
         Log.e(TAG, "Face detection failed $e")
@@ -285,7 +275,7 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
 
 
     //Load JSON file from Assets folder.
-    fun getAssetJsonData(context: Context, fileName : String): String {
+    private fun getAssetJsonData(context: Context, fileName : String): String {
         val json: String
         try {
             val inputStream = context.getAssets().open(fileName)

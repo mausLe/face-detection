@@ -34,6 +34,10 @@ class RegisterData (
         @Expose
         private var student_faculty: String? = null,
 
+        @SerializedName("class_id")
+        @Expose
+        private var class_id: String? = null,
+
         @SerializedName("device_id")
         @Expose
         private var device_id: String? = null,
