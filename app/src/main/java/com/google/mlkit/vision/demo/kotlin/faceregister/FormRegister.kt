@@ -4,30 +4,20 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
-import android.util.Log
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
-import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import api.FaceRegServerData
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.api.Constants
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceRegisterData
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.ImageEncoder
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.RegisterData
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
 import java.nio.charset.Charset
 
 
@@ -49,6 +39,25 @@ class FormRegister: AppCompatActivity() {
         var btnRegister = findViewById<Button>(R.id.btnRegister)
         var txtName = findViewById<EditText>(R.id.nameFaceRegister)
         var txtId = findViewById<EditText>(R.id.idFaceRegister)
+
+        val spinner: Spinner = findViewById(R.id.spinerType)
+        val adapter: ArrayAdapter<CharSequence> = ArrayAdapter.createFromResource(this,
+                R.array.watchlistType, android.R.layout.simple_spinner_item)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+        spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // do nothing
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?,
+                                        view: View?, position: Int, id: Long) {
+                type = parent!!.getItemAtPosition(position).toString()
+
+                // Toast.makeText(parent.context, "Type$type", Toast.LENGTH_SHORT).show()
+            }
+
+        }
 
         var frontBAFace = intent.getByteArrayExtra("frontal face")
         var frontFace = BitmapFactory.decodeByteArray(frontBAFace, 0, frontBAFace!!.size)
@@ -82,6 +91,7 @@ class FormRegister: AppCompatActivity() {
             "0", "0", encodedFace)
 
             var sendOutData = FaceRegisterData(Constants.token, myRegData)
+            /*
 
             var data = userData.registerFaces(sendOutData)
 
@@ -102,13 +112,20 @@ class FormRegister: AppCompatActivity() {
                 Toast.makeText(this, "Retrofit Catch Exception",
                         Toast.LENGTH_SHORT).show()
             }
+
+             */
         }
 
     }
 
+    fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        val text = parent.getItemAtPosition(position).toString()
+        Toast.makeText(parent.context, text, Toast.LENGTH_SHORT).show()
+    }
 
+    fun onNothingSelected(parent: AdapterView<*>?) {}
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
+    /*override fun onContextItemSelected(item: MenuItem): Boolean {
         when(item.title) {
             "Teacher" -> {
                 type = "Teacher"
@@ -120,6 +137,7 @@ class FormRegister: AppCompatActivity() {
             }
         }
     }
+     */
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -8,52 +9,32 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:orientation="vertical"
-    android:background="#4d4dff"
-    >
+    android:background="#4d4dff" >
 
     <ImageView
         android:id="@+id/imageFaceRegister"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         tools:ignore="MissingConstraints" />
+
     <TextView
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="208dp"
         android:fontFamily="google-sans"
         android:gravity="center_horizontal"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:text="FORM REGISTER"
         android:textColor="#ffffff"
-        android:textSize="18sp" />
-
-    <EditText
-        android:id="@+id/nameFaceRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="google-sans"
-        android:gravity="center_horizontal"
-        android:hint="Full Name"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:textColor="@color/white"
-        android:textSize="18sp" />
-
-    <EditText
-        android:id="@+id/idFaceRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="google-sans"
-        android:gravity="center_horizontal"
-        android:hint="ID: E.g: "
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:textColor="@color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="@id/imageFaceRegister"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="42dp" />
 
 
-
-    <Button
+    <!--Button
         android:id="@+id/btnType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,19 +45,87 @@
         android:textColor="@android:color/white"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
-        android:textSize="18sp" />
+        android:textSize="18sp" /-->
+
+
+    <EditText
+        android:id="@+id/nameFaceRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:hint="Full Name"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <EditText
+        android:id="@+id/idFaceRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:hint="ID: E.g: 17520123"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/nameFaceRegister"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <TextView
+        android:id="@+id/txViewType"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="google-sans"
+        android:gravity="center_horizontal"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:text="SELECT TYPE"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/idFaceRegister"
+        tools:ignore="MissingConstraints" />
+
+    <Spinner
+        android:id="@+id/spinerType"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginRight="70dp"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/txViewType"
+        app:layout_constraintTop_toBottomOf="@+id/idFaceRegister"
+        tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="70dp"
+        android:layout_marginTop="60dp"
         android:background="#002db3"
         android:gravity="center_horizontal"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
         android:text="Register"
         android:textColor="@android:color/white"
-        android:textSize="30sp" />
+        android:textSize="30sp"
+        app:layout_constraintTop_toBottomOf="@id/idFaceRegister"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="16dp" />
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
