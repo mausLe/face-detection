@@ -25,7 +25,9 @@ import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
+import android.media.MediaPlayer
 import android.os.Build
+import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import android.view.Window
@@ -34,7 +36,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.getSystemService
 import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
@@ -99,6 +100,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   )
 
   private var TAG = "FaceDetectorProcessor"
+
+
 
   // Using trackingId to determine if someone continue to appear on the screen view
   // If he/she is out, then
@@ -466,10 +469,28 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
 
+
+
     if (type == "Teacher" && !isShowDialog) {
       isShowDialog = true
+      try {
+        var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
+        mediaPlayer.start()
+      } catch (e : Exception) {
+        // do nothing
+        Log.v("Media Player Error", "Can not play muzik")
+      }
+
       // showSthg()
-      //showDialog("ABC")
+      showDialog("ABC")
+    } else if (type == "Student") {
+      try {
+        var mediaPlayer = MediaPlayer.create(context, R.raw.entering_sound)
+        mediaPlayer.start()
+      } catch (e : Exception) {
+        // do nothing
+        Log.v("Media Player Error", "Can not play muzik")
+      }
     }
 
     if (student_id != "Unknown") {
@@ -481,45 +502,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     adapter?.notifyDataSetChanged()
   }
 
-  private fun showSthg() {
-    val builder1 = AlertDialog.Builder(context)
-    builder1.setMessage("Write your message here.")
-    builder1.setCancelable(true)
-
-    builder1.setPositiveButton(
-            "Yes"
-    ) { dialog, id -> dialog.cancel()
-      isShowDialog = false
-    }
-
-    builder1.setNegativeButton(
-            "No"
-    ) { dialog, id -> dialog.cancel()
-      isShowDialog = false
-    }
-
-    val alert11 = builder1.create()
-    alert11.show()
-  }
-
-  fun startAlert(time: Int) {
-    val i: Int = time
-    val intent = Intent(context, MyBroadcastReceiver::class.java)
-
-    var dia = showDialog("abc")
-
-    val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
-            context, 234324243, intent, 0)
-    val alarmManager: AlarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
-    alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
-            + i * 1000, pendingIntent)
-
-
-    // Toast.makeText(context, "Alarm set in $i seconds", Toast.LENGTH_LONG).show()
-  }
-
   // Pop up Notification dialog
-  private fun showDialog(title: String): Dialog {
+  private fun showDialog(title: String) {
     val dialog = Dialog(context)
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
     dialog.setCancelable(false)
@@ -532,17 +516,22 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     val warningImage = dialog.findViewById(R.id.notfWarning) as ImageView
     warningImage.setImageResource(R.drawable.shiba_inu)
 
-    yesBtn.setOnClickListener {
+
+    Handler().postDelayed({
+      isShowDialog = false
+      dialog.dismiss()
+    }, 5000)
+
+    /*yesBtn.setOnClickListener {
       isShowDialog = false
       dialog.dismiss()
     }
     noBtn.setOnClickListener {
       isShowDialog = false
       dialog.dismiss() }
+     */
 
     dialog.show()
-
-    return dialog
   }
 
   // Request Image
