@@ -1,24 +1,37 @@
 package com.google.mlkit.vision.demo.kotlin.faceregister
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import api.FaceRegServerData
+import com.google.gson.Gson
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.api.Constants
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceRegisterData
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.ImageEncoder
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.RegisterData
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
+import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
+import com.google.mlkit.vision.demo.kotlin.watchlist
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import java.nio.charset.Charset
+
 
 
 class FormRegister: AppCompatActivity() {
@@ -31,6 +44,8 @@ class FormRegister: AppCompatActivity() {
 
     var userData = retrofit.create(ImageData::class.java)
     var type = "Student"
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +71,11 @@ class FormRegister: AppCompatActivity() {
 
                 // Toast.makeText(parent.context, "Type$type", Toast.LENGTH_SHORT).show()
             }
-
         }
+
+
+
+
 
         var frontBAFace = intent.getByteArrayExtra("frontal face")
         var frontFace = BitmapFactory.decodeByteArray(frontBAFace, 0, frontBAFace!!.size)
@@ -83,7 +101,7 @@ class FormRegister: AppCompatActivity() {
         // Decode to UTF-8
         var rightUTF = String(rightImage!!.toByteArray(), Charset.forName("UTF-8"))
 
-        var encodedFace = ImageEncoder(frontImage, leftImage, rightImage)
+        var encodedFace = ImageEncoder(frontUTF, leftUTF, rightUTF)
 
         btnRegister.setOnClickListener {
             var myRegData = RegisterData(1, txtName.text.toString(),
@@ -91,18 +109,88 @@ class FormRegister: AppCompatActivity() {
             "0", "0", encodedFace)
 
             var sendOutData = FaceRegisterData(Constants.token, myRegData)
-            /*
-
             var data = userData.registerFaces(sendOutData)
 
             try {
-                data!!.enqueue(object : Callback<FaceRegServerData?>{
+                data!!.enqueue(object : Callback<FaceRegServerData?> {
                     override fun onFailure(call: Call<FaceRegServerData?>, t: Throwable) {
-                        TODO("Not yet implemented")
+                        Log.v("Retrofit sendD Fail Res", t.toString())
+                        Toast.makeText(this@FormRegister, "Retrofit Catch Exception",
+                                Toast.LENGTH_SHORT).show()
                     }
 
                     override fun onResponse(call: Call<FaceRegServerData?>, response: Response<FaceRegServerData?>) {
-                        TODO("Not yet implemented")
+                        if (response.isSuccessful) {
+                            var receivedData : FaceRegServerData? = response.body()!!
+                            Log.v("MMLab response: ", receivedData.toString())
+
+                            var serverCode = receivedData!!.getCode()
+                            var serverStatus = receivedData.getStatus()
+
+                            var display = receivedData.toString()
+                            // serverResponse = serverData.data.student_id
+
+                            when {
+                                serverCode.toInt() == 1000 -> {
+                                    var serverData = receivedData.getData()
+
+                                    Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus" +
+                                            "\nStudent: ${serverData.student_name}")
+
+
+                                    // Add name to
+                                    var type = when(serverData.teacher) {
+                                        1 -> "Teacher"
+                                        0 -> "Student"
+                                        else -> "Other"
+                                    }
+                                    if (serverData.student_id == "17520237") type = "Teacher" // Teacher will be marked as red
+
+
+                                    // Check if that's person is on blacklist
+                                    var foundMember = false
+                                    for (i in 0 until watchlist.size) {
+                                        if (watchlist[i].getId() == serverData.student_id) {
+                                            foundMember = true
+                                            break
+                                        }
+                                    }
+                                    if (!foundMember) {
+                                        watchlist.add(Watchlist(txtId.text.toString(), txtName.text.toString(), serverData.image_id, type))
+                                        Toast.makeText(this@FormRegister, "Register Successful. Your ID: " + serverData.student_id,
+                                                Toast.LENGTH_LONG).show()
+                                    }
+
+                                    // Re-assign Name
+                                    // broadcastArrayWatchlistChanged(pos, name, type, serverData.student_id)
+                                }
+                                serverCode.toInt() == 706 -> {
+                                    Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus\nStudent: Unknown")
+                                    Toast.makeText(this@FormRegister, "status: Data Already In Dataset",
+                                            Toast.LENGTH_SHORT).show()
+
+                                    // Re-assign Name
+                                    // broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
+
+                                }
+                                else -> {
+                                    Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus")
+                                    Toast.makeText(this@FormRegister, "Error: Code $serverCode Status: $serverStatus",
+                                            Toast.LENGTH_LONG).show()
+
+                                    // broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
+
+                                }
+                            }
+                        }
+                        else {
+                            Log.v("Retrofit sendD Res else", "Fail")
+                            Toast.makeText(this@FormRegister, "Can not Search =((",
+                                    Toast.LENGTH_SHORT).show()
+
+                            // Re-assign Name
+                            // broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
+                        }
                     }
 
                 })
@@ -112,11 +200,10 @@ class FormRegister: AppCompatActivity() {
                 Toast.makeText(this, "Retrofit Catch Exception",
                         Toast.LENGTH_SHORT).show()
             }
-
-             */
         }
 
     }
+
 
     fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
         val text = parent.getItemAtPosition(position).toString()

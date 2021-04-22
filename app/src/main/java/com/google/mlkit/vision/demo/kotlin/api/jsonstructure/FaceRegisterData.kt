@@ -42,9 +42,9 @@ class RegisterData (
         @Expose
         private var device_id: String? = null,
 
-        @SerializedName("image_encoded")
+        @SerializedName("image_encodes")
         @Expose
-        private var image_encoded: ImageEncoder? = null)
+        private var image_encodes: ImageEncoder? = null)
 
 
 class ImageEncoder (

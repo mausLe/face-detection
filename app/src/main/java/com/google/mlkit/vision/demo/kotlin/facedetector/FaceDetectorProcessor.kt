@@ -303,9 +303,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
             } else passedFrame += 1
           } else passedFrame +=1
         }
-      }
-
-       */
+      }*/
 
 
       if (face.trackingId !in currentID) {
@@ -545,7 +543,6 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
     //return values
     var name = "Unknown"
-    var id = "Unknown"
 
     // broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
     try {

@@ -26,17 +26,23 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.annotation.KeepName
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.mlkit.vision.demo.CameraSource
 import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.faceregister.FaceAdderProcessor
+import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.util.ArrayList
 
+var watchlist = ArrayList<Watchlist>()
 
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
@@ -70,6 +76,23 @@ class AddFaceActivity:
 
         val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
         facingSwitch.setOnCheckedChangeListener(this)
+
+        // loadfile
+        // gson
+        var gson : Gson = Gson()
+
+        val file = File(this.filesDir, "watchlist.json")
+        var json = ""
+        try {
+            json = getJsonData(this, file.toString())
+            if (json == "[]") {
+                json = getAssetJsonData(this, "watchlist.json")
+            }
+        } catch (e : Exception) {
+            json = getAssetJsonData(this, "watchlist.json")
+        }
+        watchlist = gson.fromJson(json, Array<Watchlist>::class.java).toList() as ArrayList<Watchlist>
+
 
         val settingsButton = findViewById<ImageView>(R.id.settings_button)
         settingsButton.setOnClickListener {
@@ -154,6 +177,43 @@ class AddFaceActivity:
         startCameraSource()
     }
 
+
+    //Load JSON file from Assets folder.
+    private fun getAssetJsonData(context: Context, fileName : String): String {
+        val json: String
+        try {
+            val inputStream = context.getAssets().open(fileName)
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.use { it.read(buffer) }
+            json = String(buffer)
+        } catch (ioException: IOException) {
+            ioException.printStackTrace()
+            return ""
+        }
+        // print the data
+        Log.i("data", json)
+        return json
+    }
+
+    //Load JSON file from Assets folder.
+    private fun getJsonData(context: Context, filePath : String): String {
+        val json: String
+        try {
+            val inputStream = FileInputStream(filePath)
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.use { it.read(buffer) }
+            json = String(buffer)
+        } catch (ioException: IOException) {
+            ioException.printStackTrace()
+            return ""
+        }
+        // print the data
+        Log.i("data", json)
+        return json
+    }
+
     /** Stops the camera.  */
     override fun onPause() {
         super.onPause()
@@ -161,6 +221,26 @@ class AddFaceActivity:
     }
 
     public override fun onDestroy() {
+        try {
+            // Write the watchlist out
+            // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
+
+            val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+            var json = gsonPretty.toJson(watchlist)
+            this.openFileOutput("watchlist.json", Context.MODE_PRIVATE).use {
+                it.write(json.toByteArray())
+            }
+
+            Log.v("Watchlist", json)
+            /*
+            Toast.makeText(this, "Wlist" +
+                    watchlist[watchlist.size - 1].getName(), Toast.LENGTH_SHORT).show()
+             */
+        } catch (e : Exception)
+        {
+            // do nothing
+        }
+
         super.onDestroy()
         if (cameraSource != null) {
             cameraSource?.release()

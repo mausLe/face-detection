@@ -9,3 +9,4 @@ data class FaceRegData(
     val student_name: String,
     val teacher: Int
 )
+
