@@ -29,15 +29,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.annotation.KeepName
 import com.google.gson.GsonBuilder
-import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
 import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
-import com.google.mlkit.vision.demo.kotlin.facedetector.FaceDetectorProcessor
 import com.google.mlkit.vision.demo.kotlin.facedetector.repeatFaces
 import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
-import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
+import com.google.mlkit.vision.demo.kotlin.objectdetector.RTADObjectDetectorProcessor
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
@@ -206,7 +204,7 @@ class RTADActivity :
           val objectDetectorOptions =
             PreferenceUtils.getObjectDetectorOptionsForLivePreview(this)
           cameraSource!!.setMachineLearningFrameProcessor(
-            ObjectDetectorProcessor(this, objectDetectorOptions)
+                  RTADObjectDetectorProcessor(this, objectDetectorOptions)
           )
         }
 
