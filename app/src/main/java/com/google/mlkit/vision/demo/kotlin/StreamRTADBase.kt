@@ -119,46 +119,77 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
   }
 
   // -----------------Code for processing live preview frame from Camera1 API-----------------------
+
+  private var fr = 0
+  private var detectorStartMs = SystemClock.elapsedRealtime()
+
   @Synchronized
   override fun processByteBuffer(
     data: ByteBuffer?,
     frameMetadata: FrameMetadata?,
     graphicOverlay: GraphicOverlay
   ) {
-    latestImage = data
-    latestImageMetaData = frameMetadata
-    if (processingImage == null && processingMetaData == null) {
-      processLatestImage(graphicOverlay)
-    }
-  }
 
-  @Synchronized
-  private fun processLatestImage(graphicOverlay: GraphicOverlay) {
-    processingImage = latestImage
-    processingMetaData = latestImageMetaData
-    latestImage = null
-    latestImageMetaData = null
-    if (processingImage != null && processingMetaData != null && !isShutdown) {
-      processImage(processingImage!!, processingMetaData!!, graphicOverlay)
-    }
-  }
-
-  private fun processImage(
-    data: ByteBuffer,
-    frameMetadata: FrameMetadata,
-    graphicOverlay: GraphicOverlay
-  ) {
     val frameStartMs = SystemClock.elapsedRealtime()
     val bitmap = BitmapUtils.getBitmap(data, frameMetadata)
 
-    requestDetectInImage(
-            InputImage.fromBitmap(bitmap!!, 0),
-            graphicOverlay,
-            bitmap, /* shouldShowFps= */
-            true,
-            frameStartMs
+    graphicOverlay.clear()
+    if (bitmap != null) {
+      graphicOverlay.add(
+              CameraImageGraphic(
+                      graphicOverlay,
+                      bitmap
+              )
+      )
+    }
+    fr += 1
+    if (fr % 30 == 0) {
+      Log.v("Frame", "\n\n\n" + fr.toString())
+    }
+
+    val endMs = SystemClock.elapsedRealtime()
+    val currentFrameLatencyMs = endMs - frameStartMs
+    val currentDetectorLatencyMs = endMs - detectorStartMs
+    if (numRuns >= 500) {
+      resetLatencyStats()
+    }
+    numRuns++
+    frameProcessedInOneSecondInterval++
+    totalFrameMs += currentFrameLatencyMs
+    maxFrameMs = Math.max(currentFrameLatencyMs, maxFrameMs)
+    minFrameMs = Math.min(currentFrameLatencyMs, minFrameMs)
+    totalDetectorMs += currentDetectorLatencyMs
+    maxDetectorMs = Math.max(currentDetectorLatencyMs, maxDetectorMs)
+    minDetectorMs = Math.min(currentDetectorLatencyMs, minDetectorMs)
+
+    // Only log inference info once per second. When frameProcessedInOneSecondInterval is
+    // equal to 1, it means this is the first frame processed during the current second.
+    if (frameProcessedInOneSecondInterval == 1) {
+      Log.d(TAG, "Num of Runs: $numRuns")
+      Log.d(
+              TAG,
+              "Frame latency: max=$maxFrameMs, min=$minFrameMs, avg=" +
+                      (totalFrameMs / numRuns)
+      )
+      Log.d(
+              TAG,
+              "Detector latency: max=$maxDetectorMs, min=$minDetectorMs, avg=" +
+                      (totalDetectorMs / numRuns)
+      )
+      val mi = ActivityManager.MemoryInfo()
+      activityManager.getMemoryInfo(mi)
+      val availableMegs = mi.availMem / 0x100000L
+      Log.d(TAG, "Memory available in system: $availableMegs MB")
+    }
+
+    graphicOverlay.add(
+            InferenceInfoGraphic(
+                    graphicOverlay,
+                    currentFrameLatencyMs,
+                    currentDetectorLatencyMs,
+                    framesPerSecond
+            )
     )
-            .addOnSuccessListener(executor) { processLatestImage(graphicOverlay) }
 
   }
 
@@ -174,6 +205,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
     if (!PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context)) {
       bitmap = BitmapUtils.getBitmap(image)
     }
+
     requestDetectInImage(
       InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
       graphicOverlay, /* originalCameraImage= */
@@ -185,6 +217,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
       // images when finished using them. Otherwise, new images may not be received or the camera
       // may stall.
       .addOnCompleteListener { image.close() }
+
   }
 
   // -----------------Common processing logic-------------------------------------------------------
@@ -231,6 +264,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
         val availableMegs = mi.availMem / 0x100000L
         Log.d(TAG, "Memory available in system: $availableMegs MB")
       }
+
       graphicOverlay.clear()
       if (originalCameraImage != null) {
         graphicOverlay.add(
