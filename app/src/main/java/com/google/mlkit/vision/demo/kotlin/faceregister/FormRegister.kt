@@ -104,7 +104,7 @@ class FormRegister: AppCompatActivity() {
         var encodedFace = ImageEncoder(frontUTF, leftUTF, rightUTF)
 
         btnRegister.setOnClickListener {
-            var myRegData = RegisterData(1, txtName.text.toString(),
+            var myRegData = RegisterData(0, txtName.text.toString(),
             txtId.text.toString(), "test", "test",
             "0", "0", encodedFace)
 

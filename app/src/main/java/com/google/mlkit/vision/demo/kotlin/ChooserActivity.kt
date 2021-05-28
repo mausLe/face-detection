@@ -154,16 +154,18 @@ class ChooserActivity :
     private const val TAG = "ChooserActivity"
     private const val PERMISSION_REQUESTS = 1
     private val CLASSES = arrayOf<Class<*>>(
-      LivePreviewActivity::class.java,
-      AddFaceActivity::class.java,
-      StillImageActivity::class.java,
-      CameraXLivePreviewActivity::class.java
+            LivePreviewActivity::class.java,
+            AddFaceActivity::class.java,
+            RTADActivity::class.java,
+            StillImageActivity::class.java,
+            CameraXLivePreviewActivity::class.java
     )
     private val DESCRIPTION_IDS = intArrayOf(
-      R.string.desc_camera_source_activity,
-      R.string.desc_add_face_activity,
-      R.string.desc_still_image_activity,
-      R.string.desc_camerax_live_preview_activity
+            R.string.desc_camera_source_activity,
+            R.string.desc_add_face_activity,
+            R.string.desc_rtad_activity,
+            R.string.desc_still_image_activity,
+            R.string.desc_camerax_live_preview_activity
     )
   }
 }

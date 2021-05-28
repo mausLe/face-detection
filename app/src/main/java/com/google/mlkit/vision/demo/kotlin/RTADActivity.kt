@@ -45,14 +45,14 @@ import kotlinx.android.synthetic.main.activity_vision_live_preview.*
 import java.io.IOException
 import java.util.ArrayList
 
-var detectedImage: ImageView? = null
-var arrayWatchlist : ArrayList<WatchList> = ArrayList()
-var adapter : CustomAdapter? = null
+var rtadDetectedImage: ImageView? = null
+var rtadArrayWatchlist : ArrayList<WatchList> = ArrayList()
+var rtadAdapter : CustomAdapter? = null
 // var borderLayout : LinearLayout? = null
 
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
-class LivePreviewActivity :
+class RTADActivity :
   AppCompatActivity(),
   ActivityCompat.OnRequestPermissionsResultCallback,
   OnItemSelectedListener,
@@ -94,8 +94,8 @@ class LivePreviewActivity :
     // arrayWatchlist.add(WatchList(23, R.drawable.shiba_inu, "Shiba_inu", "April 7, 2021"))
     // arrayWatchlist.add(WatchList(27, R.drawable.shibaaa, "Shibaaaa", "Feb 14, 2021"))
 
-    adapter = CustomAdapter(this@LivePreviewActivity, arrayWatchlist)
-    listView.setAdapter(adapter)
+    rtadAdapter = CustomAdapter(this@RTADActivity, rtadArrayWatchlist)
+    listView.setAdapter(rtadAdapter)
 
     // Change LinearLayout border
     // borderLayout = findViewById<LinearLayout>(R.id.borderLayout)
@@ -118,7 +118,7 @@ class LivePreviewActivity :
     // add Detected Image
 
     //val detectedImage = findViewById<ImageView>(R.id.detected_face)
-    detectedImage = findViewById<ImageView>(R.id.detected_face)
+    rtadDetectedImage = findViewById<ImageView>(R.id.detected_face)
     /*
     Glide.with(this)
       .load(R.drawable.shiba_inu)
@@ -128,11 +128,6 @@ class LivePreviewActivity :
     val spinner = findViewById<Spinner>(R.id.spinner)
     val options: MutableList<String> = ArrayList()
     options.add(OBJECT_DETECTION)
-    options.add(OBJECT_DETECTION_CUSTOM)
-    options.add(CUSTOM_AUTOML_OBJECT_DETECTION)
-    options.add(FACE_DETECTION)
-
-    // Custom Dialog
 
 
     // Creating adapter for spinner
@@ -214,42 +209,6 @@ class LivePreviewActivity :
             ObjectDetectorProcessor(this, objectDetectorOptions)
           )
         }
-        FACE_DETECTION -> {
-          Log.i(TAG, "Using Face Detector Processor")
-          val faceDetectorOptions =
-                  PreferenceUtils.getFaceDetectorOptionsForLivePreview(this)
-          cameraSource!!.setMachineLearningFrameProcessor(
-                  FaceDetectorProcessor(this, faceDetectorOptions)
-          )
-        }
-        OBJECT_DETECTION_CUSTOM -> {
-          Log.i(
-            TAG,
-            "Using Custom Object Detector Processor"
-          )
-          val localModel = LocalModel.Builder()
-            .setAssetFilePath("custom_models/bird_classifier.tflite")
-            .build()
-          val customObjectDetectorOptions =
-            PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, localModel)
-          cameraSource!!.setMachineLearningFrameProcessor(
-            ObjectDetectorProcessor(this, customObjectDetectorOptions)
-          )
-        }
-        CUSTOM_AUTOML_OBJECT_DETECTION -> {
-          Log.i(
-            TAG,
-            "Using Custom AutoML Object Detector Processor"
-          )
-          val customAutoMLODTLocalModel = LocalModel.Builder()
-            .setAssetManifestFilePath("automl/manifest.json")
-            .build()
-          val customAutoMLODTOptions = PreferenceUtils
-            .getCustomObjectDetectorOptionsForLivePreview(this, customAutoMLODTLocalModel)
-          cameraSource!!.setMachineLearningFrameProcessor(
-            ObjectDetectorProcessor(this, customAutoMLODTOptions)
-          )
-        }
 
         else -> Log.e(TAG, "Unknown model: $model")
       }
@@ -267,6 +226,7 @@ class LivePreviewActivity :
    * (e.g., because onResume was called before the camera source was created), this will be called
    * again when the camera source is created.
    */
+
   private fun startCameraSource() {
     if (cameraSource != null) {
       try {
@@ -309,7 +269,7 @@ class LivePreviewActivity :
         it.write(json.toByteArray())
       }
 
-      Log.v("Repeate Faces", repeatFaces.toString())
+      Log.v("Repeat Faces", repeatFaces.toString())
       /*
       Toast.makeText(this, "Wlist" +
               watchlist[watchlist.size - 1].getName(), Toast.LENGTH_SHORT).show()
@@ -384,13 +344,7 @@ class LivePreviewActivity :
     private const val OBJECT_DETECTION_CUSTOM = "Custom Object Detection (Birds)"
     private const val CUSTOM_AUTOML_OBJECT_DETECTION = "Custom AutoML Object Detection (Flower)"
     private const val FACE_DETECTION = "Face Detection"
-    private const val TEXT_RECOGNITION = "Text Recognition"
-    private const val BARCODE_SCANNING = "Barcode Scanning"
-    private const val IMAGE_LABELING = "Image Labeling"
-    private const val IMAGE_LABELING_CUSTOM = "Custom Image Labeling (Birds)"
-    private const val CUSTOM_AUTOML_LABELING = "Custom AutoML Image Labeling (Flower)"
-    private const val POSE_DETECTION = "Pose Detection"
-    private const val SELFIE_SEGMENTATION = "Selfie Segmentation"
+
 
     private const val TAG = "LivePreviewActivity"
     private const val PERMISSION_REQUESTS = 1

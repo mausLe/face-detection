@@ -16,13 +16,8 @@
 
 package com.google.mlkit.vision.demo.kotlin.facedetector
 
-import android.app.AlarmManager
-import android.app.AlertDialog
 import android.app.Dialog
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Context.ALARM_SERVICE
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.media.MediaPlayer
@@ -65,6 +60,7 @@ var index = 0
 var passedFrame = 0
 var maxHuman = 30
 var watchlist = ArrayList<Watchlist>()
+var repeatFaces = ArrayList<String>()
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -474,7 +470,19 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       try {
         var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
         mediaPlayer.start()
-      } catch (e : Exception) {
+      } catch (e: Exception) {
+        // do nothing
+        Log.v("Media Player Error", "Can not play muzik")
+      }
+
+      // showSthg()
+      showDialog("ABC")
+    } else if (name == "Lê Tuấn Anh") {
+      isShowDialog = true
+      try {
+        var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
+        mediaPlayer.start()
+      } catch (e: Exception) {
         // do nothing
         Log.v("Media Player Error", "Can not play muzik")
       }
@@ -580,6 +588,9 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                     8 -> "Student"
                     else -> "Other"
                   }
+
+                  if (serverData.student_name == "Lê Tuấn Anh" && serverData.student_id !in repeatFaces) repeatFaces.add(serverData.student_id)
+
                   if (serverData.student_id == "17520237") type = "Teacher" // Teacher will be marked as red
 
 
