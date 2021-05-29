@@ -123,20 +123,9 @@ class RTADActivity :
       .into(detectedImage)
     */
 
-    val spinner = findViewById<Spinner>(R.id.spinner)
     val options: MutableList<String> = ArrayList()
     options.add(OBJECT_DETECTION)
 
-
-    // Creating adapter for spinner
-    val dataAdapter =
-      ArrayAdapter(this, R.layout.spinner_style, options)
-
-    // Drop down layout style - list view with radio button
-    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-    // attaching data adapter to spinner
-    spinner.adapter = dataAdapter
-    spinner.onItemSelectedListener = this
 
     val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
     facingSwitch.setOnCheckedChangeListener(this)
@@ -217,6 +206,7 @@ class RTADActivity :
         Toast.LENGTH_LONG
       ).show()
     }
+
   }
 
   /**

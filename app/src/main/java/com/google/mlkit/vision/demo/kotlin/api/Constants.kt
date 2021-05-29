@@ -3,8 +3,8 @@ package com.google.mlkit.vision.demo.kotlin.api
 object Constants {
 
     // Endpoints
-    const val BASE_URL = "http://service.mmlab.uit.edu.vn/checkinService_demo/"
-    // const val BASE_URL = "http://192.168.1.3:80"
+    // const val BASE_URL = "http://service.mmlab.uit.edu.vn/checkinService_demo/"
+    const val BASE_URL = "http://192.168.1.3:80"
 
 
     // const val LOGIN_URL = "auth/login"

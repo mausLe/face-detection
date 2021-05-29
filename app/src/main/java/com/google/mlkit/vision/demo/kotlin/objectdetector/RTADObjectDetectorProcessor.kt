@@ -47,6 +47,7 @@ class RTADObjectDetectorProcessor(context: Context, options: ObjectDetectorOptio
         e
       )
     }
+
   }
 
   override fun detectInImage(image: InputImage): Task<List<DetectedObject>> {
@@ -54,7 +55,9 @@ class RTADObjectDetectorProcessor(context: Context, options: ObjectDetectorOptio
   }
 
   // override fun onSuccess(results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
-  override fun onSuccess(originalCameraImage: Bitmap?, results: List<DetectedObject>, graphicOverlay: GraphicOverlay) {
+  override fun onSuccess(originalCameraImage: Bitmap? , graphicOverlay: GraphicOverlay) {
+
+    var img = originalCameraImage
     /*
     for (result in results) {
       graphicOverlay.add(ObjectGraphic(graphicOverlay, result))
