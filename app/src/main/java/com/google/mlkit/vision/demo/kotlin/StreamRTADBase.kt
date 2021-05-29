@@ -120,7 +120,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
 
 
     var builder = Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL) // change this IP for testing by your actual machine IP
+            .baseUrl(Constants.RTAD_URL) // change this IP for testing by your actual machine IP
             .addConverterFactory(GsonConverterFactory.create())
 
     var retrofit = builder.build()

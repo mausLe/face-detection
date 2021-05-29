@@ -6,7 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface FrameData {
-    @POST("predict/post/")
+    @POST("predict")
     open fun postData(@Body rtadClientData: RTADClientData?): Call<RTADServerData?>?
 
 
