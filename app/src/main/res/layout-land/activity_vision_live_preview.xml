@@ -30,15 +30,9 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="220dp"
-        android:layout_height="338dp"
+        android:layout_height="331dp"
         android:layout_marginTop="25dp"
-        android:layout_marginBottom="48dp" />
-
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"/>
+        android:layout_marginBottom="55dp" />
 
     <ToggleButton
         android:id="@+id/facing_switch"
@@ -59,14 +53,16 @@
         android:contentDescription="@string/menu_item_settings"
         android:src="@drawable/ic_settings_white_24dp"/>
 
-    <ImageView
-        android:id="@+id/detected_face"
-        android:layout_width="100dp"
-        android:layout_height="10dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="25dp"
-        android:contentDescription="detected_image" />
+    <TextView
+        android:id="@+id/txtTotal"
+        android:layout_width="210dp"
+        android:layout_height="25dp"
+        android:textColor="@color/white"
+        android:layout_marginLeft="10dp"
+        android:textSize="50px"
+        android:textStyle="bold"
+        android:text="Total: 0" />
+
 
   </FrameLayout>
 

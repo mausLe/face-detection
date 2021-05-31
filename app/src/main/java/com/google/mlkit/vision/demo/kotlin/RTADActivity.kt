@@ -47,6 +47,7 @@ var rtadDetectedImage: ImageView? = null
 var rtadArrayWatchlist : ArrayList<WatchList> = ArrayList()
 var rtadAdapter : CustomAdapter? = null
 // var borderLayout : LinearLayout? = null
+var totalAD = 0
 
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
@@ -125,6 +126,9 @@ class RTADActivity :
 
     val options: MutableList<String> = ArrayList()
     options.add(OBJECT_DETECTION)
+
+    txtView = findViewById<TextView>(R.id.txtTotal)
+    txtView!!.setText("Total: 0" )
 
 
     val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)

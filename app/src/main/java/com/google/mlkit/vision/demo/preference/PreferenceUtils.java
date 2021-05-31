@@ -223,6 +223,7 @@ public class PreferenceUtils {
     return optionsBuilder.build();
   }
 
+  /*
   public static PoseDetectorOptionsBase getPoseDetectorOptionsForLivePreview(Context context) {
     int performanceMode =
         getModeTypePreferenceValue(
@@ -295,6 +296,7 @@ public class PreferenceUtils {
         context.getString(R.string.pref_key_segmentation_raw_size_mask);
     return sharedPreferences.getBoolean(prefKey, false);
   }
+  */
 
   /**
    * Mode type preference is backed by {@link android.preference.ListPreference} which only support

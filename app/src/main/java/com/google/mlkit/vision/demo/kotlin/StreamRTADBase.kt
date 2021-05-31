@@ -17,14 +17,20 @@
 package com.google.mlkit.vision.demo.kotlin
 
 import android.app.ActivityManager
+import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build.VERSION_CODES
+import android.os.Handler
 import android.os.SystemClock
 import android.util.Base64
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import android.util.Log
+import android.view.Window
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
@@ -32,13 +38,7 @@ import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskExecutors
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.demo.BitmapUtils
-import com.google.mlkit.vision.demo.CameraImageGraphic
-import com.google.mlkit.vision.demo.FrameMetadata
-import com.google.mlkit.vision.demo.GraphicOverlay
-import com.google.mlkit.vision.demo.InferenceInfoGraphic
-import com.google.mlkit.vision.demo.ScopedExecutor
-import com.google.mlkit.vision.demo.VisionImageProcessor
+import com.google.mlkit.vision.demo.*
 import com.google.mlkit.vision.demo.kotlin.api.Constants
 import com.google.mlkit.vision.demo.kotlin.api.service.FrameData
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
@@ -105,6 +105,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
   lateinit var bytebuffer2Bitmap : Bitmap
 
   lateinit var frameData: FrameData
+  private  var isShowDialog = false
 
   init {
     fpsTimer.scheduleAtFixedRate(
@@ -155,7 +156,28 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
     return Base64.encodeToString(b, Base64.DEFAULT)
   }
 
+  // Pop up Notification dialog
+  private fun showDialog(graphicOverlay: GraphicOverlay) {
+    val dialog = Dialog(graphicOverlay.context)
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+    dialog.setCancelable(false)
+    dialog.setContentView(R.layout.layout_dialog)
+    val warningContext = dialog.findViewById(R.id.notfContext) as TextView
+    warningContext.text = "Hey! I found someone that might be in your blacklist. Take a look!"
 
+    val yesBtn = dialog.findViewById(R.id.notfLearnMore) as Button
+    val noBtn = dialog.findViewById(R.id.notfDismiss) as Button
+    val warningImage = dialog.findViewById(R.id.notfWarning) as ImageView
+    warningImage.setImageResource(R.drawable.shiba_inu)
+
+
+    Handler().postDelayed({
+      isShowDialog = false
+      dialog.dismiss()
+    }, 5000)
+
+    dialog.show()
+  }
 
   private var fr = 0
   private var detectorStartMs = SystemClock.elapsedRealtime()
@@ -193,6 +215,12 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
 
               var serverCode = receiveData.getCode()
               var serverStatus = receiveData.getStatus()
+
+              if (serverStatus == "Warning")
+              {
+                totalAD += 1
+                txtView!!.setText("Total: $totalAD" )
+              }
 
               // var display = receiveData.toString()
               // serverResponse = serverData.data.student_id

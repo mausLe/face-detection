@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MLKit FacDet</string>
+    <string name="app_name">Convenience Store Management</string>
     <string name="java_entry_title">Run the ML Kit quickstart written in Java</string>
-    <string name="kotlin_entry_title">Run the ML Kit quickstart written in Kotlin</string>
+    <string name="kotlin_entry_title">Welcome to Convenience Store Management App</string>
     <string name="ok">OK</string>
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="toggle_turn_on">Front</string>
     <string name="toggle_turn_off">Back</string>
-    <string name="desc_camera_source_activity">Vision detectors demo with live camera preview</string>
-    <string name="desc_add_face_activity">Add new person to Watchlist</string>
+    <string name="desc_camera_source_activity">Real-Time Face Recognition</string>
+    <string name="desc_add_face_activity">Add New Identity to Watchlist</string>
     <string name="desc_rtad_activity">Real-Time Surveillance Camera</string>
     <string name="desc_still_image_activity">Vision detectors demo with a still image</string>
     <string name="desc_camerax_live_preview_activity">Vision detectors demo with live preview using CameraX. Note that CameraX is only supported on API 21+</string>

@@ -23,6 +23,7 @@ import android.graphics.Bitmap.createBitmap
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Handler
+import android.text.Html
 import android.util.Base64
 import android.util.Log
 import android.view.Window
@@ -61,6 +62,7 @@ var passedFrame = 0
 var maxHuman = 30
 var watchlist = ArrayList<Watchlist>()
 var repeatFaces = ArrayList<String>()
+
 
 /** Face Detector Demo.  */
 class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
@@ -111,6 +113,11 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private var editImageView: ImageView? = null
   private  var isShowDialog = false
 
+  private var totalWatchlist = 0
+  private var totalBlacklist = 0
+  private var totalVIP = 0
+
+
 
   init {
     val options = detectorOptions
@@ -135,6 +142,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       json = getAssetJsonData(context, "watchlist.json")
     }
     watchlist = gson.fromJson(json, Array<Watchlist>::class.java).toList() as ArrayList<Watchlist>
+
 
     // Init appearTime to skip the first 4 times of every human
     // and record a 5th time
@@ -306,6 +314,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
         if (currentID.size > 30)  currentID.drop(29)
           currentID.add(0, face.trackingId)
 
+        totalWatchlist += 1
+        var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"
+        txtView!!.setText(Html.fromHtml(textViewContent))
+
         arrayWatchlist.add(0, WatchList(face.trackingId, croppedImage, face.trackingId.toString(), currentDate, "Other"))
 
 
@@ -466,6 +478,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
 
     if (type == "Teacher" && !isShowDialog) {
+      totalBlacklist += 1
+      var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"
+      txtView!!.setText(Html.fromHtml(textViewContent))
+
       isShowDialog = true
       try {
         var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
@@ -490,6 +506,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // showSthg()
       showDialog("ABC")
     } else if (type == "Student") {
+      totalVIP += 1
+      var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"
+      txtView!!.setText(Html.fromHtml(textViewContent))
+
       try {
         var mediaPlayer = MediaPlayer.create(context, R.raw.entering_sound)
         mediaPlayer.start()

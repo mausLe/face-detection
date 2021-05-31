@@ -48,6 +48,10 @@ import java.util.ArrayList
 var detectedImage: ImageView? = null
 var arrayWatchlist : ArrayList<WatchList> = ArrayList()
 var adapter : CustomAdapter? = null
+var txtView : TextView? = null
+
+
+
 // var borderLayout : LinearLayout? = null
 
 /** Live preview demo for ML Kit APIs.  */
@@ -63,7 +67,7 @@ class LivePreviewActivity :
   private var cameraSource: CameraSource? = null
   private var preview: CameraSourcePreview? = null
   private var graphicOverlay: GraphicOverlay? = null
-  private var selectedModel = OBJECT_DETECTION
+  private var selectedModel = FACE_DETECTION
 
   //Listview
 
@@ -100,6 +104,9 @@ class LivePreviewActivity :
     // Change LinearLayout border
     // borderLayout = findViewById<LinearLayout>(R.id.borderLayout)
 
+    txtView = findViewById<TextView>(R.id.txtTotal)
+    txtView!!.setText("Total: 0" )
+
     /*
     val myListAdapter = MyListAdapter(this, imageID, name, id)
     listView.adapter = myListAdapter
@@ -125,25 +132,16 @@ class LivePreviewActivity :
       .into(detectedImage)
     */
 
-    val spinner = findViewById<Spinner>(R.id.spinner)
     val options: MutableList<String> = ArrayList()
+    /*
     options.add(OBJECT_DETECTION)
     options.add(OBJECT_DETECTION_CUSTOM)
     options.add(CUSTOM_AUTOML_OBJECT_DETECTION)
+    */
     options.add(FACE_DETECTION)
 
     // Custom Dialog
 
-
-    // Creating adapter for spinner
-    val dataAdapter =
-      ArrayAdapter(this, R.layout.spinner_style, options)
-
-    // Drop down layout style - list view with radio button
-    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-    // attaching data adapter to spinner
-    spinner.adapter = dataAdapter
-    spinner.onItemSelectedListener = this
 
     val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
     facingSwitch.setOnCheckedChangeListener(this)
@@ -206,48 +204,12 @@ class LivePreviewActivity :
     }
     try {
       when (model) {
-        OBJECT_DETECTION -> {
-          Log.i(TAG, "Using Object Detector Processor")
-          val objectDetectorOptions =
-            PreferenceUtils.getObjectDetectorOptionsForLivePreview(this)
-          cameraSource!!.setMachineLearningFrameProcessor(
-            ObjectDetectorProcessor(this, objectDetectorOptions)
-          )
-        }
         FACE_DETECTION -> {
           Log.i(TAG, "Using Face Detector Processor")
           val faceDetectorOptions =
                   PreferenceUtils.getFaceDetectorOptionsForLivePreview(this)
           cameraSource!!.setMachineLearningFrameProcessor(
                   FaceDetectorProcessor(this, faceDetectorOptions)
-          )
-        }
-        OBJECT_DETECTION_CUSTOM -> {
-          Log.i(
-            TAG,
-            "Using Custom Object Detector Processor"
-          )
-          val localModel = LocalModel.Builder()
-            .setAssetFilePath("custom_models/bird_classifier.tflite")
-            .build()
-          val customObjectDetectorOptions =
-            PreferenceUtils.getCustomObjectDetectorOptionsForLivePreview(this, localModel)
-          cameraSource!!.setMachineLearningFrameProcessor(
-            ObjectDetectorProcessor(this, customObjectDetectorOptions)
-          )
-        }
-        CUSTOM_AUTOML_OBJECT_DETECTION -> {
-          Log.i(
-            TAG,
-            "Using Custom AutoML Object Detector Processor"
-          )
-          val customAutoMLODTLocalModel = LocalModel.Builder()
-            .setAssetManifestFilePath("automl/manifest.json")
-            .build()
-          val customAutoMLODTOptions = PreferenceUtils
-            .getCustomObjectDetectorOptionsForLivePreview(this, customAutoMLODTLocalModel)
-          cameraSource!!.setMachineLearningFrameProcessor(
-            ObjectDetectorProcessor(this, customAutoMLODTOptions)
           )
         }
 
