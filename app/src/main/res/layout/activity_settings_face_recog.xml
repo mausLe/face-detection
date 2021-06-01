@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settings_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Switch
+        android:id="@+id/switchEntrance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:textSize="50px"
+        android:textStyle="bold"
+        android:checked = "true"
+
+        android:text="Deploy at Entrance"
+        android:textOff="Counter"
+        android:textOn ="Entrance"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+</LinearLayout>

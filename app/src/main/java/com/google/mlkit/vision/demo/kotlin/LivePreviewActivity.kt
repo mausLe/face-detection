@@ -16,20 +16,20 @@
 
 package com.google.mlkit.vision.demo.kotlin
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.annotation.KeepName
 import com.google.gson.GsonBuilder
-import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
 import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
@@ -37,19 +37,22 @@ import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.facedetector.FaceDetectorProcessor
 import com.google.mlkit.vision.demo.kotlin.facedetector.repeatFaces
 import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
-import com.google.mlkit.vision.demo.kotlin.objectdetector.ObjectDetectorProcessor
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
 import kotlinx.android.synthetic.main.activity_vision_live_preview.*
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
 
 var detectedImage: ImageView? = null
 var arrayWatchlist : ArrayList<WatchList> = ArrayList()
 var adapter : CustomAdapter? = null
 var txtView : TextView? = null
 
+var minHeight = 80 // 75 pixel
+
+var isSpeakerOn = true
+var isAtEntrance = true
 
 
 // var borderLayout : LinearLayout? = null
@@ -68,6 +71,8 @@ class LivePreviewActivity :
   private var preview: CameraSourcePreview? = null
   private var graphicOverlay: GraphicOverlay? = null
   private var selectedModel = FACE_DETECTION
+
+
 
   //Listview
 
@@ -146,17 +151,77 @@ class LivePreviewActivity :
     val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
     facingSwitch.setOnCheckedChangeListener(this)
 
+    val speakerButton = findViewById<ImageView>(R.id.speaker_button)
+    speakerButton.setOnClickListener {
+      if (isSpeakerOn == true) {
+        isSpeakerOn = false
+        speakerButton.setImageResource(R.drawable.speaker_off)
+
+        Log.v("Speaker", "Turn speaker OFF")
+        Toast.makeText( applicationContext, "Turn speaker OFF",
+                Toast.LENGTH_SHORT ).show()
+      } else {
+        isSpeakerOn = true
+        speakerButton.setImageResource(R.drawable.speaker_on)
+
+        Log.v("Speaker", "Turn speaker ON")
+        Toast.makeText( applicationContext, "Turn speaker ON",
+                Toast.LENGTH_SHORT ).show()
+      }
+    }
+
+    val entranceButton = findViewById<ImageView>(R.id.entrance_button)
+    entranceButton.setOnClickListener {
+      if (isAtEntrance == true) {
+        isAtEntrance = false
+        entranceButton.setImageResource(R.drawable.counter)
+
+        minHeight = 200 // Set up at counter table, min height is 150 pixel
+
+        Log.v("Speaker", "Set up at Cash Counter Table")
+        Toast.makeText( applicationContext, "Set up at Cash Counter Table",
+                Toast.LENGTH_SHORT ).show()
+      } else {
+        isAtEntrance = true
+        entranceButton.setImageResource(R.drawable.entrance)
+
+        minHeight = 80 // Set up at entrance, min height is 75 pixel
+
+        Log.v("Speaker", "Set up at Entrance")
+        Toast.makeText( applicationContext, "Set up at Entrance",
+                Toast.LENGTH_SHORT ).show()
+      }
+    }
+
     val settingsButton = findViewById<ImageView>(R.id.settings_button)
     settingsButton.setOnClickListener {
       val intent = Intent(applicationContext, SettingsActivity::class.java)
       intent.putExtra(SettingsActivity.EXTRA_LAUNCH_SOURCE, LaunchSource.LIVE_PREVIEW)
-      startActivity(intent)
+      startActivityForResult(intent, 1)
+
     }
+
 
     if (allPermissionsGranted()) {
       createCameraSource(selectedModel)
     } else {
       runtimePermissions
+    }
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    // Check which request we're responding to
+    print("min height: " + minHeight)
+    if (requestCode == 1) {
+      // Make sure the request was successful
+      if (resultCode == RESULT_OK) {
+        minHeight = data!!.getIntExtra("min_Height", 0)
+      }
+      if (resultCode == Activity.RESULT_CANCELED) {
+        // Do nothing
+      }
+
     }
   }
 

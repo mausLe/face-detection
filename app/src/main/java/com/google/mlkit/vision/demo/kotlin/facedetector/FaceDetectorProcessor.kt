@@ -250,7 +250,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
       try {
         // Try to increase h to 0.7*originalCameraImage!!.height
-        if (h > 70 && h > 0.1*originalCameraImage.height
+        if (h > minHeight && h > 0.1*originalCameraImage.height
                 && h/w >= 0.3 && w/h >= 0.3) {
           croppedImage = cropBitmap(originalCameraImage!!, leftcoord, topcoord, w, h)
         }
@@ -477,31 +477,39 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
 
 
-    if (type == "Teacher" && !isShowDialog) {
+    if (name == "Lê Tuấn Anh") {
+      isShowDialog = true
+
+      if (isSpeakerOn == true) {
+        try {
+          var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
+          mediaPlayer.start()
+        } catch (e: Exception) {
+          // do nothing
+          Log.e("Media Player Error", "Can not play muzik")
+        }
+      }
+
+      // showSthg()
+      showDialog("ABC")
+    } else if (type == "Teacher" && !isShowDialog) {
       totalBlacklist += 1
       var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"
       txtView!!.setText(Html.fromHtml(textViewContent))
 
       isShowDialog = true
-      try {
-        var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
-        mediaPlayer.start()
-      } catch (e: Exception) {
-        // do nothing
-        Log.v("Media Player Error", "Can not play muzik")
+
+      if (isSpeakerOn == true) {
+        try {
+          var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
+          mediaPlayer.start()
+        } catch (e: Exception) {
+          // do nothing
+          Log.e("Media Player Error", "Can not play muzik")
+        }
       }
 
-      // showSthg()
-      showDialog("ABC")
-    } else if (name == "Lê Tuấn Anh") {
-      isShowDialog = true
-      try {
-        var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
-        mediaPlayer.start()
-      } catch (e: Exception) {
-        // do nothing
-        Log.v("Media Player Error", "Can not play muzik")
-      }
+
 
       // showSthg()
       showDialog("ABC")
@@ -510,12 +518,14 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"
       txtView!!.setText(Html.fromHtml(textViewContent))
 
-      try {
-        var mediaPlayer = MediaPlayer.create(context, R.raw.entering_sound)
-        mediaPlayer.start()
-      } catch (e : Exception) {
-        // do nothing
-        Log.v("Media Player Error", "Can not play muzik")
+      if (isSpeakerOn == true) {
+        try {
+          var mediaPlayer = MediaPlayer.create(context, R.raw.entering_sound)
+          mediaPlayer.start()
+        } catch (e : Exception) {
+          // do nothing
+          Log.e("Media Player Error", "Can not play muzik")
+        }
       }
     }
 

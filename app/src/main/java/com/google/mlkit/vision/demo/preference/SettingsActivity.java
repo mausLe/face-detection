@@ -16,11 +16,19 @@
 
 package com.google.mlkit.vision.demo.preference;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.mlkit.vision.demo.R;
+
+
+
+
 
 /**
  * Hosts the preference fragment to configure settings for a demo activity that specified by the
@@ -29,10 +37,14 @@ import com.google.mlkit.vision.demo.R;
 public class SettingsActivity extends AppCompatActivity {
 
   public static final String EXTRA_LAUNCH_SOURCE = "extra_launch_source";
+  public int minHeight = 75;
 
   /** Specifies where this activity is launched from. */
   public enum LaunchSource {
     LIVE_PREVIEW(R.string.pref_screen_title_live_preview, LivePreviewPreferenceFragment.class),
+    ADD_FACE_PREVIEW(R.string.pref_screen_title_add_face_preview, LivePreviewPreferenceFragment.class),
+    RTAD_PREVIEW(R.string.pref_screen_title_rtad_preview, LivePreviewPreferenceFragment.class),
+
     STILL_IMAGE(R.string.pref_screen_title_still_image, StillImagePreferenceFragment.class),
     CAMERAX_LIVE_PREVIEW(
         R.string.pref_screen_title_camerax_live_preview,
@@ -51,14 +63,46 @@ public class SettingsActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.activity_settings);
-
     LaunchSource launchSource =
         (LaunchSource) getIntent().getSerializableExtra(EXTRA_LAUNCH_SOURCE);
+
+    if (launchSource.toString() == "LIVE_PREVIEW") {
+      setContentView(R.layout.activity_settings_face_recog);
+    } else {
+      setContentView(R.layout.activity_settings);
+    }
+
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
       actionBar.setTitle(launchSource.titleResId);
     }
+
+    Switch switchEntrance;
+
+    switchEntrance = (Switch) findViewById(R.id.switchEntrance);
+
+    switchEntrance.setOnCheckedChangeListener((buttonView, isChecked) -> {
+      Intent resultIntent1 = new Intent();
+      resultIntent1.putExtra("min_Height", minHeight);
+      setResult(RESULT_OK, resultIntent1);
+      if (switchEntrance.isChecked()) {
+        minHeight = 150;
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("min_Height", minHeight);
+        setResult(RESULT_OK, resultIntent);
+
+      } else {
+        minHeight = 75;
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("min_Height", minHeight);
+        setResult(RESULT_OK, resultIntent);
+
+      }
+    });
+
+
 
     try {
       getFragmentManager()
