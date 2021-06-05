@@ -60,7 +60,7 @@ import kotlin.collections.ArrayList
 var index = 0
 var passedFrame = 0
 var maxHuman = 30
-var watchlist = ArrayList<Watchlist>()
+// var watchlist = ArrayList<Watchlist>()
 var repeatFaces = ArrayList<String>()
 
 
@@ -131,6 +131,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     Log.v(MANUAL_TESTING_LOG, "Face detector options: $options")
 
     // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
+    /*
     val file = File(context.filesDir, "watchlist.json")
     var json = ""
     try {
@@ -142,6 +143,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       json = getAssetJsonData(context, "watchlist.json")
     }
     watchlist = gson.fromJson(json, Array<Watchlist>::class.java).toList() as ArrayList<Watchlist>
+     */
 
 
     // Init appearTime to skip the first 4 times of every human
@@ -371,6 +373,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
 
   //Load JSON file from Assets folder.
+  /*
   fun getAssetJsonData(context: Context, fileName : String): String {
     val json: String
     try {
@@ -388,7 +391,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     return json
   }
 
+   */
+
   //Load JSON file from Assets folder.
+  /*
   fun getJsonData(context: Context, filePath : String): String {
     val json: String
     try {
@@ -405,6 +411,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     Log.i("data", json)
     return json
   }
+   */
 
   /*
   private fun login() {
@@ -613,9 +620,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                           Toast.LENGTH_SHORT).show()
 
                   // Add name to
-                  var type = when(serverData.student_id.length) {
-                    5 -> "Teacher"
-                    8 -> "Student"
+                  var type = when{
+                    serverData.student_id.length == 5 -> "Teacher"
+                    serverData.student_id.length == 8 -> "Student"
+                    serverData.student_id.length == 9 -> "Student"
                     else -> "Other"
                   }
 
@@ -625,6 +633,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
 
                   // Check if that's person is on blacklist
+                  /*
                   var foundMember = false
                   for (i in 0 until watchlist.size) {
                     if (watchlist[i].getId() == serverData.student_id) {
@@ -635,6 +644,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   if (!foundMember) {
                     watchlist.add(Watchlist(serverData.student_id, serverData.student_name, serverData.image_id, type))
                   }
+                  */
 
                   // Re-assign Name
                   broadcastArrayWatchlistChanged(pos, name, type, serverData.student_id)

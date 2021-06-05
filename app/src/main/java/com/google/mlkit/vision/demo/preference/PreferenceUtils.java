@@ -203,23 +203,35 @@ public class PreferenceUtils {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     boolean enableFaceTracking =
         sharedPreferences.getBoolean(
-            context.getString(R.string.pref_key_live_preview_face_detection_face_tracking), false);
+            context.getString(R.string.pref_key_live_preview_face_detection_face_tracking), true);
     float minFaceSize =
         Float.parseFloat(
             sharedPreferences.getString(
                 context.getString(R.string.pref_key_live_preview_face_detection_min_face_size),
                 "0.1"));
 
+    /*
     FaceDetectorOptions.Builder optionsBuilder =
         new FaceDetectorOptions.Builder()
             .setLandmarkMode(landmarkMode)
             .setContourMode(contourMode)
             .setClassificationMode(classificationMode)
             .setPerformanceMode(performanceMode)
+            .enableTracking()
             .setMinFaceSize(minFaceSize);
+     */
+    FaceDetectorOptions.Builder optionsBuilder =
+            new FaceDetectorOptions.Builder()
+                    .setPerformanceMode(performanceMode)
+                    .enableTracking()
+                    .setMinFaceSize(minFaceSize);
+
+    /*
     if (enableFaceTracking) {
       optionsBuilder.enableTracking();
     }
+
+     */
     return optionsBuilder.build();
   }
 

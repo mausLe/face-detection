@@ -77,33 +77,6 @@ public class SettingsActivity extends AppCompatActivity {
       actionBar.setTitle(launchSource.titleResId);
     }
 
-    Switch switchEntrance;
-
-    switchEntrance = (Switch) findViewById(R.id.switchEntrance);
-
-    switchEntrance.setOnCheckedChangeListener((buttonView, isChecked) -> {
-      Intent resultIntent1 = new Intent();
-      resultIntent1.putExtra("min_Height", minHeight);
-      setResult(RESULT_OK, resultIntent1);
-      if (switchEntrance.isChecked()) {
-        minHeight = 150;
-
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("min_Height", minHeight);
-        setResult(RESULT_OK, resultIntent);
-
-      } else {
-        minHeight = 75;
-
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("min_Height", minHeight);
-        setResult(RESULT_OK, resultIntent);
-
-      }
-    });
-
-
-
     try {
       getFragmentManager()
           .beginTransaction()

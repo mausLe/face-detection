@@ -34,7 +34,7 @@ import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.facedetector.repeatFaces
-import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
+// import com.google.mlkit.vision.demo.kotlin.facedetector.watchlist
 import com.google.mlkit.vision.demo.kotlin.objectdetector.RTADObjectDetectorProcessor
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
@@ -251,6 +251,7 @@ class RTADActivity :
   }
 
   public override fun onDestroy() {
+    /*
     try {
       // Write the watchlist out
       // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
@@ -270,6 +271,7 @@ class RTADActivity :
     {
       // do nothing
     }
+     */
 
     super.onDestroy()
     if (cameraSource != null) {

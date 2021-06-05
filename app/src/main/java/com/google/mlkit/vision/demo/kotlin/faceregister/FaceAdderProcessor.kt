@@ -79,6 +79,7 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
         Log.v(MANUAL_TESTING_LOG, "Face detector options: $options")
 
         // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
+        /*
         val file = File(context.filesDir, "watchlist.json")
         var json = ""
         try {
@@ -89,6 +90,8 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
         } catch (e : Exception) {
             json = getAssetJsonData(context, "watchlist.json")
         }
+
+         */
 
     }
 
@@ -174,18 +177,18 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
             }
 
             if (frontFace == null
-                    && -5 < face.headEulerAngleY && face.headEulerAngleY  < 5
-                    && -5 < face.headEulerAngleX && face.headEulerAngleX  < 10) {
+                    && -15 < face.headEulerAngleY && face.headEulerAngleY  < 15
+                    && -15 < face.headEulerAngleX && face.headEulerAngleX  < 15) {
                 frontFace = croppedImage
                 Toast.makeText(context, "Add FrontalFace", Toast.LENGTH_LONG).show()
 
             } else if (leftFace == null
-                    && -40 < face.headEulerAngleY && face.headEulerAngleY  < -7) {
+                    && -45 < face.headEulerAngleY && face.headEulerAngleY  < -7) {
                 leftFace = croppedImage
                 Toast.makeText(context, "Add LeftFace", Toast.LENGTH_LONG).show()
 
             } else if (rightFace == null
-                    && 7 < face.headEulerAngleY && face.headEulerAngleY  < 40) {
+                    && 7 < face.headEulerAngleY && face.headEulerAngleY  < 45) {
                 rightFace = croppedImage
                 Toast.makeText(context, "Add RightFace", Toast.LENGTH_LONG).show()
             }
@@ -263,6 +266,7 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
 
 
     //Load JSON file from Assets folder.
+    /*
     private fun getAssetJsonData(context: Context, fileName : String): String {
         val json: String
         try {
@@ -279,8 +283,10 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
         Log.i("data", json)
         return json
     }
+     */
 
     //Load JSON file from Assets folder.
+    /*
     fun getJsonData(context: Context, filePath : String): String {
         val json: String
         try {
@@ -297,6 +303,8 @@ class FaceAdderProcessor (context: Context, detectorOptions: FaceDetectorOptions
         Log.i("data", json)
         return json
     }
+
+     */
 
     // Request Image
     /*

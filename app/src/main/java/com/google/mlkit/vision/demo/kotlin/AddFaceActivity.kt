@@ -33,7 +33,7 @@ import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.faceregister.FaceAdderProcessor
-import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
+// import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
 import com.google.mlkit.vision.demo.preference.SettingsActivity
 import com.google.mlkit.vision.demo.preference.SettingsActivity.LaunchSource
@@ -42,7 +42,7 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.ArrayList
 
-var watchlist = ArrayList<Watchlist>()
+// var watchlist = ArrayList<Watchlist>()
 
 /** Live preview demo for ML Kit APIs.  */
 @KeepName
@@ -79,6 +79,7 @@ class AddFaceActivity:
 
         // loadfile
         // gson
+        /*
         var gson : Gson = Gson()
 
         val file = File(this.filesDir, "watchlist.json")
@@ -92,6 +93,7 @@ class AddFaceActivity:
             json = getAssetJsonData(this, "watchlist.json")
         }
         watchlist = gson.fromJson(json, Array<Watchlist>::class.java).toList() as ArrayList<Watchlist>
+         */
 
 
         val settingsButton = findViewById<ImageView>(R.id.settings_button)
@@ -179,6 +181,7 @@ class AddFaceActivity:
 
 
     //Load JSON file from Assets folder.
+    /*
     private fun getAssetJsonData(context: Context, fileName : String): String {
         val json: String
         try {
@@ -195,8 +198,10 @@ class AddFaceActivity:
         Log.i("data", json)
         return json
     }
+    */
 
     //Load JSON file from Assets folder.
+    /*
     private fun getJsonData(context: Context, filePath : String): String {
         val json: String
         try {
@@ -214,6 +219,8 @@ class AddFaceActivity:
         return json
     }
 
+     */
+
     /** Stops the camera.  */
     override fun onPause() {
         super.onPause()
@@ -221,6 +228,7 @@ class AddFaceActivity:
     }
 
     public override fun onDestroy() {
+        /*
         try {
             // Write the watchlist out
             // filePath: "/data/user/0/com.google.mlkit.vision.demo/files/out.json"
@@ -240,6 +248,7 @@ class AddFaceActivity:
         {
             // do nothing
         }
+         */
 
         super.onDestroy()
         if (cameraSource != null) {

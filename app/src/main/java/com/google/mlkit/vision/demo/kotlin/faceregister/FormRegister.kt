@@ -19,8 +19,8 @@ import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceRegisterData
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.ImageEncoder
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.RegisterData
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
-import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
-import com.google.mlkit.vision.demo.kotlin.watchlist
+// import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
+// import com.google.mlkit.vision.demo.kotlin.watchlist
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -104,7 +104,7 @@ class FormRegister: AppCompatActivity() {
         var encodedFace = ImageEncoder(frontUTF, leftUTF, rightUTF)
 
         btnRegister.setOnClickListener {
-            var myRegData = RegisterData(0, txtName.text.toString(),
+            var myRegData = RegisterData(1, txtName.text.toString(),
             txtId.text.toString(), "test", "test",
             "0", "0", encodedFace)
 
@@ -148,6 +148,7 @@ class FormRegister: AppCompatActivity() {
 
 
                                     // Check if that's person is on blacklist
+                                    /*
                                     var foundMember = false
                                     for (i in 0 until watchlist.size) {
                                         if (watchlist[i].getId() == serverData.student_id) {
@@ -160,6 +161,7 @@ class FormRegister: AppCompatActivity() {
                                         Toast.makeText(this@FormRegister, "Register Successful. Your ID: " + serverData.student_id,
                                                 Toast.LENGTH_LONG).show()
                                     }
+                                     */
 
                                     // Re-assign Name
                                     // broadcastArrayWatchlistChanged(pos, name, type, serverData.student_id)
