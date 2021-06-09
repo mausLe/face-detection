@@ -224,7 +224,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       // 12 degrees to 36 degrees
       // ---> right mouth, nose base, bottom mouth, left eye, right eye, right cheek, right ear tip
 
-      if (face.headEulerAngleY > 45 || face.headEulerAngleY < -45) continue
+      if (face.headEulerAngleY > 40 || face.headEulerAngleY < -40) continue
 
       // Facing upward
       if (face.headEulerAngleX > 20 || face.headEulerAngleY < -15) continue
@@ -479,13 +479,19 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private  fun broadcastArrayWatchlistChanged(pos : Int, name : String, type : String, student_id: String) {
     // Re-assign Name
     // println("WatchList: " + arrayWatchlist)
+
     arrayWatchlist[arrayWatchlist.size - pos - 1].name = name
     arrayWatchlist[arrayWatchlist.size - pos - 1].type = type
 
+    if (name == "Lê Tuấn Anh") {
+      arrayWatchlist[arrayWatchlist.size - pos - 1].type = "Teacher"
+
+    }
 
 
     if (name == "Lê Tuấn Anh") {
-      isShowDialog = true
+
+      totalBlacklist += 1
 
       if (isSpeakerOn == true) {
         try {
@@ -498,13 +504,16 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       }
 
       // showSthg()
-      showDialog("ABC")
-    } else if (type == "Teacher" && !isShowDialog) {
+      if (isPopUpOn && !isShowDialog) {
+        isShowDialog = true
+        showDialog("ABC")
+      }
+    } else if (type == "Teacher" ) {
       totalBlacklist += 1
       var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"
       txtView!!.setText(Html.fromHtml(textViewContent))
 
-      isShowDialog = true
+
 
       if (isSpeakerOn == true) {
         try {
@@ -519,7 +528,12 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
 
       // showSthg()
-      showDialog("ABC")
+      if (isPopUpOn && !isShowDialog) {
+        isShowDialog = true
+        showDialog("ABC")
+      }
+
+
     } else if (type == "Student") {
       totalVIP += 1
       var textViewContent = "<font color=#ffffff>Total: $totalWatchlist</font> | <font color=#008000>$totalVIP</font> | <font color=#b32d00>$totalBlacklist</font>"

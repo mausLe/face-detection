@@ -40,8 +40,8 @@
         android:layout_height="40dp"
         android:layout_gravity="bottom|start"
         android:background="@layout/toggle_style"
-        android:layout_marginBottom="3dp"
-        android:layout_marginLeft="6dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginLeft="3dp"
 
         android:checked="false"
         android:textOff=""
@@ -52,31 +52,37 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="bottom|end"
-        android:padding="7dp"
         android:contentDescription="@string/menu_item_settings"
-        android:src="@drawable/ic_settings_white_24dp"/>
+        android:padding="7dp"
+        android:src="@drawable/ic_settings_white_24dp" />
+
+    <ImageView
+        android:id="@+id/popup_button"
+        android:layout_width="40dp"
+        android:layout_height="35dp"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="89dp"
+        android:contentDescription="@string/menu_item_popup"
+        android:src="@drawable/pop_up" />
 
     <ImageView
         android:id="@+id/speaker_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="bottom"
+        android:layout_marginLeft="45dp"
         android:contentDescription="@string/menu_item_speaker"
-        android:padding="5dp"
-        android:layout_marginLeft="58dp"
         android:src="@drawable/speaker_on" />
 
     <ImageView
         android:id="@+id/entrance_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="116dp"
-        android:padding="7dp"
+        android:layout_marginLeft="132dp"
+
         android:contentDescription="@string/menu_item_entrance"
-        android:src="@drawable/entrance"/>
-
-
+        android:src="@drawable/entrance" />
 
     <TextView
         android:id="@+id/txtTotal"

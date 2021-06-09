@@ -52,6 +52,8 @@ var txtView : TextView? = null
 var minHeight = 80 // 75 pixel
 
 var isSpeakerOn = true
+var isPopUpOn = true
+
 var isAtEntrance = true
 
 
@@ -166,6 +168,25 @@ class LivePreviewActivity :
 
         Log.v("Speaker", "Turn speaker ON")
         Toast.makeText( applicationContext, "Turn speaker ON",
+                Toast.LENGTH_SHORT ).show()
+      }
+    }
+
+    val popupButton = findViewById<ImageView>(R.id.popup_button)
+    popupButton.setOnClickListener {
+      if (isPopUpOn == true) {
+        isPopUpOn = false
+        popupButton.setImageResource(R.drawable.pop_up_off)
+
+        Log.v("POP-UP", "Turn Pop-up OFF")
+        Toast.makeText( applicationContext, "Turn Pop-up OFF",
+                Toast.LENGTH_SHORT ).show()
+      } else {
+        isPopUpOn = true
+        popupButton.setImageResource(R.drawable.pop_up)
+
+        Log.v("POP-UP", "Turn Pop-up ON")
+        Toast.makeText( applicationContext, "Turn Pop-up ON",
                 Toast.LENGTH_SHORT ).show()
       }
     }
