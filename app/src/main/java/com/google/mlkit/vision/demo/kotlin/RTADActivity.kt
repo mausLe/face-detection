@@ -28,7 +28,6 @@ import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.annotation.KeepName
-import com.google.gson.GsonBuilder
 import com.google.mlkit.vision.demo.CameraSource
 import com.google.mlkit.vision.demo.CameraSourcePreview
 import com.google.mlkit.vision.demo.GraphicOverlay
@@ -49,7 +48,6 @@ var rtadAdapter : CustomAdapter? = null
 // var borderLayout : LinearLayout? = null
 var totalAD = 0
 
-/** Live preview demo for ML Kit APIs.  */
 @KeepName
 class RTADActivity :
   AppCompatActivity(),
@@ -75,7 +73,7 @@ class RTADActivity :
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     Log.d(TAG, "onCreate")
-    setContentView(R.layout.activity_vision_live_preview)
+    setContentView(R.layout.realtime_anomaly_detection_preview)
 
     preview = findViewById(R.id.preview_view)
     if (preview == null) {
@@ -129,6 +127,25 @@ class RTADActivity :
 
     txtView = findViewById<TextView>(R.id.txtTotal)
     txtView!!.setText("Total: 0" )
+
+    val speakerButton = findViewById<ImageView>(R.id.speaker_button)
+    speakerButton.setOnClickListener {
+      if (isSpeakerOn == true) {
+        isSpeakerOn = false
+        speakerButton.setImageResource(R.drawable.speaker_off)
+
+        Log.v("Speaker", "Turn speaker OFF")
+        Toast.makeText( applicationContext, "Turn speaker OFF",
+                Toast.LENGTH_SHORT ).show()
+      } else {
+        isSpeakerOn = true
+        speakerButton.setImageResource(R.drawable.speaker_on)
+
+        Log.v("Speaker", "Turn speaker ON")
+        Toast.makeText( applicationContext, "Turn speaker ON",
+                Toast.LENGTH_SHORT ).show()
+      }
+    }
 
 
     val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)

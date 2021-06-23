@@ -53,7 +53,11 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
                 .load(watchList.imageCode)
                 .into(viewHolder.imageCode)
         // viewHolder.imageCode.setImageResource(watchList.imageCode)
-        viewHolder.watchlistID.text = "ID: " + watchList.watchlistID.toString()
+        if (watchList.type == "Warning") {
+            viewHolder.watchlistID.text = "No: " + watchList.watchlistID.toString()
+        } else {
+            viewHolder.watchlistID.text = "ID: " + watchList.watchlistID.toString()
+        }
         viewHolder.name.text = watchList.name
         viewHolder.time.text = watchList.time.toString()
 
@@ -61,6 +65,8 @@ class CustomAdapter (var context: Context, var watchlist : ArrayList<WatchList>)
             viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#cc0000"))
         } else if (watchList.type == "Student") {
             viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#009933"))
+        } else if (watchList.type == "Warning") { // For anomaly detection
+            viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#cc0000"))
         } else {
             viewHolder.borderColor!!.setBackgroundColor(Color.parseColor("#00001a"))
 

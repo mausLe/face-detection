@@ -20,6 +20,7 @@ import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
+import android.media.MediaPlayer
 import android.os.Build.VERSION_CODES
 import android.os.Handler
 import android.os.SystemClock
@@ -34,17 +35,16 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
-import api.ServerData
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskExecutors
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.*
 import com.google.mlkit.vision.demo.kotlin.api.Constants
 import com.google.mlkit.vision.demo.kotlin.api.service.FrameData
-import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
 import com.google.mlkit.vision.demo.kotlin.api.service.RTADClientData
 import com.google.mlkit.vision.demo.kotlin.api.service.RTADServerData
 import com.google.mlkit.vision.demo.preference.PreferenceUtils
+import kotlinx.android.synthetic.main.activity_vision_live_preview.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -53,8 +53,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import java.util.Timer
-import java.util.TimerTask
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Abstract base class for ML Kit frame processors. Subclasses need to implement {@link
@@ -63,6 +63,8 @@ import java.util.TimerTask
  *
  * @param <T> The type of the detected feature.
  */
+
+
 abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
 
   companion object {
@@ -106,6 +108,12 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
 
   lateinit var frameData: FrameData
   private  var isShowDialog = false
+  private var isPlaying = false
+
+  private val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+  private val currentDate = sdf.format(Date())
+
+  private var isWarning = false
 
   init {
     fpsTimer.scheduleAtFixedRate(
@@ -128,6 +136,8 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
     // var userClient = retrofit.create(UserClient::class.java)
 
     frameData = retrofit.create(FrameData::class.java)
+
+
   }
 
   // -----------------Code for processing single still image----------------------------------------
@@ -182,6 +192,48 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
   private var fr = 0
   private var detectorStartMs = SystemClock.elapsedRealtime()
 
+  private  fun broadcastWarning(context:Context, bm: Bitmap) {
+
+    if (isSpeakerOn) {
+
+      if (!isPlaying)
+      {
+        isPlaying = true
+        try {
+          var mediaPlayer = MediaPlayer.create(context, R.raw.long_beep)
+          mediaPlayer.start()
+        } catch (e: Exception) {
+          // do nothing
+          Log.e("Media Player Error", "Can not play muzik")
+        }
+
+        Handler().postDelayed({
+          isPlaying = false
+        }, 10000)
+      }
+
+    }
+
+    if (!isWarning) {
+      isWarning = true
+
+      totalAD += 1
+
+
+      rtadArrayWatchlist.add(0,
+              WatchList(totalAD, bm,"Warning",
+                      currentDate, "Warning"))
+
+      rtadAdapter?.notifyDataSetChanged()
+
+      Handler().postDelayed({
+        isWarning = false
+      },10000)
+    }
+
+  }
+
+
   @Synchronized
   override fun processByteBuffer(
     data: ByteBuffer?,
@@ -218,15 +270,15 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
 
               if (serverStatus == "Warning")
               {
-                totalAD += 1
-                txtView!!.setText("Total: $totalAD" )
+
+                broadcastWarning(graphicOverlay.context, bitmap)
               }
 
               // var display = receiveData.toString()
               // serverResponse = serverData.data.student_id
+
               Toast.makeText(graphicOverlay.context, "Status: $serverStatus",
                       Toast.LENGTH_SHORT).show()
-
             }
           }
 
@@ -247,7 +299,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
 
     val endMs = SystemClock.elapsedRealtime()
     val currentFrameLatencyMs = endMs - frameStartMs
-    val currentDetectorLatencyMs = endMs - detectorStartMs
+    val currentDetectorLatencyMs = 0
     if (numRuns >= 500) {
       resetLatencyStats()
     }
@@ -257,8 +309,8 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
     maxFrameMs = Math.max(currentFrameLatencyMs, maxFrameMs)
     minFrameMs = Math.min(currentFrameLatencyMs, minFrameMs)
     totalDetectorMs += currentDetectorLatencyMs
-    maxDetectorMs = Math.max(currentDetectorLatencyMs, maxDetectorMs)
-    minDetectorMs = Math.min(currentDetectorLatencyMs, minDetectorMs)
+    maxDetectorMs = Math.max(currentDetectorLatencyMs.toLong(), 0)
+    minDetectorMs = Math.min(currentDetectorLatencyMs.toLong(), 0)
 
     // Only log inference info once per second. When frameProcessedInOneSecondInterval is
     // equal to 1, it means this is the first frame processed during the current second.
@@ -292,7 +344,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
             InferenceInfoGraphic(
                     graphicOverlay,
                     currentFrameLatencyMs,
-                    currentDetectorLatencyMs,
+                    currentDetectorLatencyMs.toLong(),
                     framesPerSecond
             )
     )
