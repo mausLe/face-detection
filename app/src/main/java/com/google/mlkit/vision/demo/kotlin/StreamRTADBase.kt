@@ -24,6 +24,7 @@ import android.media.MediaPlayer
 import android.os.Build.VERSION_CODES
 import android.os.Handler
 import android.os.SystemClock
+import android.text.Html
 import android.util.Base64
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -218,7 +219,7 @@ abstract class StreamRTADBase<T>(context: Context) : VisionImageProcessor {
       isWarning = true
 
       totalAD += 1
-
+      txtView!!.text = "Total: $totalAD"
 
       rtadArrayWatchlist.add(0,
               WatchList(totalAD, bm,"Warning",

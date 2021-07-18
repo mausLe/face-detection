@@ -4,6 +4,9 @@ object Constants {
 
     // Endpoints
     const val BASE_URL = "http://service.mmlab.uit.edu.vn/checkinService_demo/"
+
+    const val DASHBOARD_URL = "http://192.168.1.4:8000/"
+
     // const val BASE_URL = "http://192.168.1.3:80"
 
     const val RTAD_URL ="https://aiclub.uit.edu.vn/kltn_anhlt/"

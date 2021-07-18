@@ -41,10 +41,11 @@ import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.R
 import com.google.mlkit.vision.demo.kotlin.*
 import com.google.mlkit.vision.demo.kotlin.api.Constants
+import com.google.mlkit.vision.demo.kotlin.api.dashboard.DashboardFeedback
+import com.google.mlkit.vision.demo.kotlin.api.dashboard.syncData
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.FaceData
 import com.google.mlkit.vision.demo.kotlin.api.jsonstructure.data
 import com.google.mlkit.vision.demo.kotlin.api.service.ImageData
-import com.google.mlkit.vision.demo.kotlin.iojson.Watchlist
 import com.google.mlkit.vision.face.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -56,6 +57,8 @@ import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+
+import com.google.mlkit.vision.demo.kotlin.api.dashboard.syncDashboard
 
 var index = 0
 var passedFrame = 0
@@ -164,6 +167,17 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   // var userClient = retrofit.create(UserClient::class.java)
 
   var imageData = retrofit.create(ImageData::class.java)
+
+
+
+  var dashboardBuilder = Retrofit.Builder()
+          .baseUrl(Constants.DASHBOARD_URL) // change this IP for testing by your actual machine IP
+          .addConverterFactory(GsonConverterFactory.create())
+
+  var dashboardRetrofit = dashboardBuilder.build()
+
+  var dashboardRequest = dashboardRetrofit.create(syncDashboard::class.java)
+
 
   override fun stop() {
     super.stop()
@@ -476,6 +490,64 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   }
    */
 
+  private fun syncDashboard(studentid: String, name:String, image: String, oriType: String)
+  {
+
+    var phone = Build.MANUFACTURER + Build.MODEL
+
+    var type = when (oriType) {
+        "Teacher" -> {
+          1
+        }
+        "Student" -> {
+          2
+        }
+        else -> {
+          3
+        }
+    }
+
+    val mySyncData = syncData(studentid, name, phone, image, type)
+    // val mySyncData = syncData(studentid, name, phone, type)
+
+    var feedback = dashboardRequest.syncData(mySyncData)
+
+    try {
+        feedback!!.enqueue(object : Callback<DashboardFeedback?>{
+          override fun onFailure(call: Call<DashboardFeedback?>, t: Throwable) {
+            Log.v("Failed to Sync", t.toString())
+            Toast.makeText(context, "Failed to Sync ",
+                    Toast.LENGTH_SHORT).show()
+          }
+
+          override fun onResponse(call: Call<DashboardFeedback?>, response: Response<DashboardFeedback?>)
+          {
+            if (response.isSuccessful) {
+              Log.v("Sync Dashboard", "Sync successful $response")
+              Toast.makeText(context, "Sync successful",
+                      Toast.LENGTH_SHORT).show()
+            }
+            else {
+              Log.v("Sync Dashboard", "Sync successful $response")
+              Toast.makeText(context, "Failed to Sync ",
+                      Toast.LENGTH_SHORT).show()
+            }
+          }
+
+        }
+        )
+    }
+    catch (e : Exception)
+    {
+      Log.v("Retrofit catch", "Fail")
+      Toast.makeText(context, "Failed to Sync",
+              Toast.LENGTH_SHORT).show()
+
+    }
+
+
+  }
+
   private  fun broadcastArrayWatchlistChanged(pos : Int, name : String, type : String, student_id: String) {
     // Re-assign Name
     // println("WatchList: " + arrayWatchlist)
@@ -608,7 +680,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
       data!!.enqueue(object : Callback<ServerData?>{
         override fun onFailure(call: Call<ServerData?>, t: Throwable) {
 
-          Log.v("Retrofit sendD Fail Res", t.toString())
+          Log.v("Retrofit send Fail Res", t.toString())
           Toast.makeText(context, "Error =(((",
                   Toast.LENGTH_SHORT).show()
         }
@@ -662,6 +734,10 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
 
                   // Re-assign Name
                   broadcastArrayWatchlistChanged(pos, name, type, serverData.student_id)
+
+                  // Sync info to Dashboard
+                  syncDashboard(serverData.student_id, name, imageCode,type)
+
                 }
                 serverCode.toInt() == 704 -> {
                   Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus\nStudent: Unknown")
@@ -671,6 +747,9 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                   // Re-assign Name
                   broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
 
+                  // Sync info to Dashboard
+                  syncDashboard("Unknown", "Unknown", imageCode, "Unknown")
+
                 }
                 else -> {
                   Log.v("MMLab response: ", "Code $serverCode\nStatus $serverStatus")
@@ -679,6 +758,9 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                           Toast.LENGTH_SHORT).show()
 
                   broadcastArrayWatchlistChanged(pos, name, "Other", "Unknown")
+
+                  // Sync info to Dashboard
+                  syncDashboard("Unknown", "Unknown", imageCode, "Unknown")
 
                 }
             }
