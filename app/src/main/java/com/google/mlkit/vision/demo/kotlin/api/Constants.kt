@@ -5,7 +5,10 @@ object Constants {
     // Endpoints
     const val BASE_URL = "http://service.mmlab.uit.edu.vn/checkinService_demo/"
 
-    const val DASHBOARD_URL = "http://192.168.1.4:8000/"
+    // const val DASHBOARD_URL = "http://192.168.1.3:8000/"
+    // const val DASHBOARD_URL = "https://uit-constore.herokuapp.com/"
+    const val DASHBOARD_URL = "http://aiclub.uit.edu.vn/gpu/kltn_anhlt/web/"
+
 
     // const val BASE_URL = "http://192.168.1.3:80"
 

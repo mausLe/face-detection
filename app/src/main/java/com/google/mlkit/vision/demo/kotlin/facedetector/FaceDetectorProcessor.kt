@@ -493,7 +493,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
   private fun syncDashboard(studentid: String, name:String, image: String, oriType: String)
   {
 
-    var phone = Build.MANUFACTURER + Build.MODEL
+    var phone = Build.MANUFACTURER + " " + Build.MODEL
 
     var type = when (oriType) {
         "Teacher" -> {
@@ -516,8 +516,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
         feedback!!.enqueue(object : Callback<DashboardFeedback?>{
           override fun onFailure(call: Call<DashboardFeedback?>, t: Throwable) {
             Log.v("Failed to Sync", t.toString())
-            Toast.makeText(context, "Failed to Sync ",
-                    Toast.LENGTH_SHORT).show()
+            // Toast.makeText(context, "Failed to Sync ",
+            //         Toast.LENGTH_SHORT).show()
           }
 
           override fun onResponse(call: Call<DashboardFeedback?>, response: Response<DashboardFeedback?>)
@@ -528,9 +528,9 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
                       Toast.LENGTH_SHORT).show()
             }
             else {
-              Log.v("Sync Dashboard", "Sync successful $response")
-              Toast.makeText(context, "Failed to Sync ",
-                      Toast.LENGTH_SHORT).show()
+              Log.v("Sync Dashboard", "Failed to Sync $response")
+              // Toast.makeText(context, "Failed to Sync ",
+              //         Toast.LENGTH_SHORT).show()
             }
           }
 
@@ -540,8 +540,8 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
     catch (e : Exception)
     {
       Log.v("Retrofit catch", "Fail")
-      Toast.makeText(context, "Failed to Sync",
-              Toast.LENGTH_SHORT).show()
+      // Toast.makeText(context, "Failed to Sync",
+      //        Toast.LENGTH_SHORT).show()
 
     }
 
